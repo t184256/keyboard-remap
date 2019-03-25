@@ -1,0 +1,455 @@
+#include "../core/source_event.h"
+
+#define MODE_INITIAL mode_base_colemak
+
+#define PRESS 1
+#define RELEASE 0
+
+#define EXPIRATION_MS 500
+
+bool mode_base_colemak(InEvent ev);
+bool mode_russian(InEvent ev);
+bool mode_spaceshifted_primed(InEvent ev);
+bool mode_spaceshifted_defused(InEvent ev);
+bool mode_controlesque_primed(InEvent ev);
+bool mode_controlesque_defused(InEvent ev);
+bool mode_extended_undecided(InEvent ev);
+bool mode_extended_temporary(InEvent ev);
+bool mode_extended_sticky(InEvent ev);
+bool mode_combo(InEvent ev);
+
+unsigned long spaceshifted_time, controlesque_time;
+
+#define COMBO_MAX 3
+int combo_i;
+uint16_t combo_codes[COMBO_MAX];
+
+
+bool mode_base_colemak(InEvent ev) {
+	switch (ev.code) {
+
+#F		case L_{<}:
+#f			emit_key(KEY_{X>}, ev.value);
+#f			return HANDLED;
+#>     1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>       1  2  3  4  5    6  7  8  9  0
+#>  0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  TAB  Q  W  F  P  G    J  L  U  Y  ;  -
+#>  0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  ###  A  R  S  T  D    H  N  E  I  O  '
+#>     1B 2B 3B 4B 5B   6B 7B 8B 9B AB BB  >>>       Z  X  C  V  B    K  M  ,  .  / ###
+#>                 LT   RT                 >>>                  ###  ###
+
+		case L_LT:
+			if (ev.value == PRESS) {
+				Serial.println("push_mode meu");
+				push_mode(mode_extended_undecided);
+			} else {
+				emit_release_all();
+			}
+			return HANDLED;
+
+		case L_RT:
+			if (ev.value == PRESS) {
+				emit_press(KEY_RIGHT_SHIFT);
+				Serial.println("push_mode mps");
+				push_mode(mode_spaceshifted_primed);
+				spaceshifted_time = ev.time;
+			} else {
+				emit_release_all();
+			}
+			return HANDLED;
+
+		case L_0H:
+			if (ev.value == PRESS) {
+				emit_press(KEY_LEFT_CTRL);
+				Serial.println("push_mode cep");
+				push_mode(mode_controlesque_primed);
+				controlesque_time = ev.time;
+			} else {
+				emit_release_all();
+			}
+			return HANDLED;
+
+		case L_BB:
+			if (ev.value == PRESS) {
+				emit_release_all();
+				Serial.println("push_mode com");
+				combo_i = 0;
+				push_mode(mode_combo);
+			}
+			return HANDLED;
+
+		default: return PASSTHROUGH;
+	}
+}
+
+
+bool mode_spaceshifted_primed(InEvent ev) {
+	if (ev.code == L_RT && ev.value == PRESS)  // REPEAT
+		return HANDLED;
+	if (ev.code == L_RT && ev.value == RELEASE) {
+		Serial.println("pop_mode msp");
+		pop_mode(mode_spaceshifted_primed);
+		emit_release(KEY_RIGHT_SHIFT);
+		emit_press(KEY_SPACE);
+		emit_release(KEY_SPACE);
+		emit_release_all();
+		return HANDLED;
+	}
+	if (ev.value == PRESS || fabs(ev.time - spaceshifted_time) > EXPIRATION_MS) {
+		Serial.println("swap_mode msp->mpd");
+		swap_mode(mode_spaceshifted_primed, mode_spaceshifted_defused);
+		return mode_spaceshifted_defused(ev);
+	}
+	return PASSTHROUGH;
+}
+
+bool mode_spaceshifted_defused(InEvent ev) {
+	if (ev.code == L_RT && ev.value == PRESS)  // REPEAT
+		return HANDLED;
+	if (ev.code == L_RT && ev.value == RELEASE) {
+		Serial.println("pop_mode msd");
+		pop_mode(mode_spaceshifted_defused);
+		emit_release(KEY_RIGHT_SHIFT);
+		emit_release_all();
+		return HANDLED;
+	}
+	if (ev.code == L_LT) {
+		emit_key(KEY_BACKSPACE, ev.value);
+		return HANDLED;
+	}
+	return PASSTHROUGH;
+}
+
+
+bool mode_controlesque_primed(InEvent ev) {
+	if (ev.code == L_0H && ev.value == PRESS)  // REPEAT
+		return HANDLED;
+	if (ev.code == L_0H && ev.value == RELEASE) {
+		Serial.println("pop_mode msp");
+		pop_mode(mode_controlesque_primed);
+		emit_release(KEY_LEFT_CTRL);
+		emit_press(KEY_ESC);
+		emit_release(KEY_ESC);
+		emit_release_all();
+		return HANDLED;
+	}
+	if (ev.value == PRESS || fabs(ev.time - controlesque_time) > EXPIRATION_MS) {
+		Serial.println("swap_mode cep->ced");
+		swap_mode(mode_controlesque_primed, mode_controlesque_defused);
+		return mode_controlesque_defused(ev);
+	}
+	return PASSTHROUGH;
+}
+
+bool mode_controlesque_defused(InEvent ev) {
+	if (ev.code == L_0H && ev.value == PRESS)  // REPEAT
+		return HANDLED;
+	if (ev.code == L_0H && ev.value == RELEASE) {
+		Serial.println("pop_mode ced");
+		pop_mode(mode_controlesque_defused);
+		emit_release(KEY_LEFT_CTRL);
+		emit_release_all();
+		return HANDLED;
+	}
+	return PASSTHROUGH;
+}
+
+
+bool mode_extended_undecided(InEvent ev) {
+	if (ev.code == L_LT && ev.value == PRESS)  // REPEAT
+		return HANDLED;
+	if (ev.code == L_LT && ev.value == RELEASE) {
+		Serial.println("swap_mode meu->mes");
+		swap_mode(mode_extended_undecided, mode_extended_sticky);
+		return HANDLED;
+	}
+	Serial.println("swap_mode meu->met");
+	swap_mode(mode_extended_undecided, mode_extended_temporary);
+	return mode_extended_temporary(ev);
+}
+
+bool mode_extended_temporary(InEvent ev) {
+	switch (ev.code) {
+#F		case L_{<}:
+#f			emit_key(KEY_{X>}, ev.value);
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>      GL1 GL2 GL3 GL4 GL5   AC1 AC2 AC3 AC4 AC5
+#> 0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  WM0 WM1 WM2 WM3 WM4 WM5   #~#  [   ]  #{# #}# #+#
+#> 0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  AP0 AP1 AP2 AP3 AP4 AP5   LTA DNA UPA RTA  =   `
+#>    1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>      UND COP CUT PAS DEL   HOM PDN PUP END  \
+#>                LT   RT                 >>>                      ###   #_#
+
+		case L_LT:
+			if (ev.value == RELEASE) {
+				Serial.println("pop_mode met");
+				pop_mode(mode_extended_temporary);
+				emit_release_all();
+			} // else ignore
+			return HANDLED;
+
+		case L_RT:
+			emit_key(KEY_RETURN, ev.value);
+			return HANDLED;
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {  // Enter shifted char and leave the mode
+#f				emit_release_all();
+#f				emit_press(KEY_LEFT_SHIFT);
+#f				emit_press(KEY_{>});
+#f				emit_release(KEY_{>});
+#f				emit_release(KEY_LEFT_SHIFT);
+#f				return HANDLED;
+#f			}
+#> 6T 9T AT BT  >>>  TILDE LEFT_BRACE RIGHT_BRACE EQUAL
+
+		default: return PASSTHROUGH;
+	}
+}
+
+bool mode_extended_sticky(InEvent ev) {
+	switch (ev.code) {
+#F		case L_{<}:  // Left hand actions keep the extended mode
+#f			emit_key(KEY_{X>}, ev.value);
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N  >>>      GL1 GL2 GL3 GL4 GL5
+#> 0T 1T 2T 3T 4T 5T  >>>  WM0 WM1 WM2 WM3 WM4 WM5
+#> 0H 1H 2H 3H 4H 5H  >>>  AP0 AP1 AP2 AP3 AP4 AP5
+#>    1B 2B 3B 4B 5B  >>>      UND CUT COP PAS DEL
+#>                LT  >>>                      ###
+
+		case L_LT:
+			if (ev.value == PRESS) {
+				Serial.println("pop_mode mes");
+				pop_mode(mode_extended_sticky);
+				emit_release_all();
+			} // else ignore
+			return HANDLED;
+
+#F		case L_{<}:  // Right hand actions keep the extended mode
+#f			emit_key(KEY_{X>}, ev.value);
+#f			if (ev.value == RELEASE)
+#f				pop_mode(mode_extended_sticky);
+#f			return HANDLED;
+#> 6N 7N 8N 9N AN     >>>  AC1 AC2 AC3 AC4 AC5
+#> 6T 7T 8T 9T AT BT  >>>  #~#  [   ]  #{# #}# #+#
+#> 6H 7H 8H 9H AH BH  >>>  LTA DNA UPA RTA  =   `
+#> 6B 7B 8B 9B AB     >>>  HOM PDN PUP END  \
+#> RT                 >>>  #_#
+
+		case L_RT:
+			if (ev.value == PRESS) {  // UNDERSCORE
+				Serial.println("pop_mode mes");
+				pop_mode(mode_extended_sticky);
+				emit_press(KEY_LEFT_SHIFT);
+				emit_press(KEY_MINUS);
+				emit_release(KEY_MINUS);
+				emit_release(KEY_LEFT_SHIFT);
+				emit_release_all();
+			} // else ignore
+			return HANDLED;
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {  // Enter shifted char and leave the mode
+#f				Serial.println("pop_mode mes");
+#f				pop_mode(mode_extended_sticky);
+#f				emit_release_all();
+#f				emit_press(KEY_LEFT_SHIFT);
+#f				emit_press(KEY_{>});
+#f				emit_release(KEY_{>});
+#f				emit_release(KEY_LEFT_SHIFT);
+#f				return HANDLED;
+#f			}
+#> 6T 9T AT BT  >>>  TILDE LEFT_BRACE RIGHT_BRACE EQUAL
+
+		default: return PASSTHROUGH;
+	}
+}
+
+
+bool mode_combo(InEvent ev) {
+#F#define LETTER_{>} L_{<}
+#>  0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  ###  Q  W  F  P  G    J  L  U  Y  ## ###
+#>  0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  ###  A  R  S  T  D    H  N  E  I  O  ###
+#>     1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>       Z  X  C  V  B    K  M  ## ## ##
+	if (ev.value != PRESS)  // Only presses matter in combo mode.
+		return HANDLED;
+	uint16_t c0 = combo_codes[0];
+	uint16_t c1 = combo_codes[1];
+	uint16_t c2 = combo_codes[2];
+	switch (ev.code) {
+		case L_BB:  // process combo
+			Serial.println("process combo");
+			if (combo_i == 0) {
+				// Double-tap on combo button == layout switch!
+				Serial.println("pop_mode com layout_switch");
+				pop_mode(mode_combo);
+				if (peek_mode() == mode_base_colemak) {
+					Serial.println("push_mode rus");
+					push_mode(mode_russian);
+					emit_release_all();
+					return HANDLED;
+				} else if (peek_mode() == mode_russian) {
+					Serial.println("pop_mode rus");
+					pop_mode(mode_russian);
+					emit_release_all();
+					return HANDLED;
+				} else {
+					Serial.println("error: layout switch from unknown layout!");
+					emit_release_all();
+					return HANDLED;
+				}
+			} else if (combo_i == 1) {
+				switch (c0) {
+#F					case L_{<}:
+#f						Serial.println("pop_mode com combo len=1!");
+#f						pop_mode(mode_combo);
+#f						emit_press(KEY_{X>});
+#f						emit_release(KEY_{X>});
+#f						emit_release_all();
+#f						return HANDLED;
+#>     1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>       1  2  3  4  5    6  7  8  9  0
+#>  0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  ###  Q  W  F  P  G    J  L  U  Y  ;  -
+#>  0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  ###  A  R  S  T  D    H  N  E  I  O  '
+#>     1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>       Z  X  C  V  B    K  M  ,  .  /
+#>                 LT   RT                 >>>                  ###  ###
+					default:
+						return HANDLED;
+				}
+			} else if (combo_i == 2 && c0 == LETTER_F) { // F+?
+				switch (c1) {
+#F					case L_{<}:
+#f						Serial.println("pop_mode com combo F+?!");
+#f						pop_mode(mode_combo);
+#f						emit_press(KEY_{X>});
+#f						emit_release(KEY_{X>});
+#f						emit_release_all();
+#f						return HANDLED;
+#>  1N 2N 3N 4N 5N   6N 7N 8N 9N ##  >>>  F1 F2 F3 F4 F5   F6 F7 F8 F9 ###
+					default:
+						return HANDLED;
+				}
+			} else if (combo_i == 3 && c0 == LETTER_F && c1 == L_1N) { // F+1+?
+				switch (c2) {
+#F					case L_{<}:
+#f						Serial.println("pop_mode com combo F+1+?!");
+#f						pop_mode(mode_combo);
+#f						emit_press(KEY_{X>});
+#f						emit_release(KEY_{X>});
+#f						emit_release_all();
+#f						return HANDLED;
+#>  1N 2N ## ## ##   ## ## ## ## AN  >>>  F11 F12 ### ### ###   ### ### ### ### F10
+					default:
+						return HANDLED;
+				}
+#F			} else if ({<}) {
+#f				Serial.println("pop_mode com combo!");
+#f				pop_mode(mode_combo);
+#f				emit_press(KEY_{X>});
+#f				emit_release(KEY_{X>});
+#f				emit_release_all();
+#f				return HANDLED;
+#> combo_i==2&&c0==LETTER_E&&c1==LETTER_S  >>>  ESC		/// E+S == ESCAPE
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_E  >>>  RETURN		/// R+E == RETURN
+#> combo_i==2&&c0==LETTER_S&&c1==LETTER_P  >>>  SPACE		/// S+P == SPACE
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_T  >>>  RTA		/// R+T == RIGHT
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_T  >>>  LTA		/// L+T == LEFT
+#> combo_i==2&&c0==LETTER_U&&c1==LETTER_P  >>>  UPA		/// U+P == UP
+#> combo_i==2&&c0==LETTER_D&&c1==LETTER_N  >>>  DNA		/// D+N == DOWN
+#> combo_i==2&&c0==LETTER_H&&c1==LETTER_M  >>>  HOME		/// H+M == HOME
+#> combo_i==2&&c0==LETTER_E&&c1==LETTER_N  >>>  END		/// E+N == END
+#> combo_i==2&&c0==LETTER_P&&c1==LETTER_U  >>>  PUP		/// P+U == PAGE_UP
+#> combo_i==2&&c0==LETTER_P&&c1==LETTER_D  >>>  PDN		/// P+D == PAGE_DOWN
+#> combo_i==2&&c0==LETTER_T&&c1==LETTER_A  >>>  TAB		/// T+A == TAB
+#> combo_i==2&&c0==LETTER_E&&c1==LETTER_Q  >>>  EQUAL		/// E+Q == EQUAL
+#> combo_i==2&&c0==LETTER_T&&c1==LETTER_I  >>>  TILDE		/// T+I == TILDE
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_B  >>>  LEFT_BRACE	/// L+B == LEFT_BRACE
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_B  >>>  RIGHT_BRACE	/// R+B == RIGHT_BRACE
+#> combo_i==2&&c0==LETTER_M&&c1==LETTER_N  >>>  MENU		/// M+N == MENU
+#> combo_i==2&&c0==LETTER_P&&c1==LETTER_A  >>>  PAUSE		/// P+A == PAUSE
+#> combo_i==2&&c0==LETTER_I&&c1==LETTER_N  >>>  INSERT		/// I+N == INSERT
+#> combo_i==2&&c0==LETTER_D&&c1==LETTER_L  >>>  DELETE		/// D+E == DELETE
+#> combo_i==2&&c0==LETTER_P&&c1==LETTER_S  >>>  PRINTSCREEN	/// P+S == PRINTSCREEN
+#> combo_i==2&&c0==LETTER_S&&c1==LETTER_C  >>>  SCROLL_LOCK	/// S+C == SCROLL_LOCK
+#> combo_i==2&&c0==LETTER_C&&c1==LETTER_L  >>>  CAPS_LOCK	/// C+L == CAPS_LOCK
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_S  >>>  LEFT_SHIFT	/// L+S == LEFT_SHIFT
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_S  >>>  RIGHT_SHIFT	/// R+S == RIGHT_SHIFT
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_A  >>>  LEFT_ALT	/// L+A == LEFT_ALT
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_A  >>>  RIGHT_ALT	/// R+A == RIGHT_ALT
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_C  >>>  LEFT_CTRL	/// L+C == LEFT_CTRL
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_C  >>>  RIGHT_CTRL	/// R+C == RIGHT_CTRL
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_W  >>>  LEFT_GUI	/// L+W == LEFT_GUI
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_W  >>>  RIGHT_GUI	/// R+W == RIGHT_GUI
+#> combo_i==2&&c0==LETTER_P&&c1==LETTER_W  >>>  POWER		/// P+W == POWER
+#> combo_i==2&&c0==LETTER_V&&c1==LETTER_M  >>>  VOLUME_MUTE	/// V+M == VOLUME_MUTE
+#> combo_i==2&&c0==LETTER_V&&c1==LETTER_U  >>>  VOLUME_UP	/// V+U == VOLUME_UP
+#> combo_i==2&&c0==LETTER_V&&c1==LETTER_D  >>>  VOLUME_DOWN	/// V+D == VOLUME_DOWN
+#> combo_i==2&&c0==LETTER_M&&c1==LETTER_M  >>>  MIC_MUTE	/// M+M == MIC_MUTE
+#> combo_i==3&&c0==LETTER_B&&c1==LETTER_S&&c2==LETTER_P  >>>  BACKSPACE  /// B+S+P == BACKSPACE
+#> combo_i==3&&c0==LETTER_B&&c1==LETTER_S&&c2==LETTER_L  >>>  BACKSLASH  /// B+S+L == BACKSLASH
+// TODO: S+Y == ALT+PRINTSCREEN (SYSRQ)
+// TODO: N+?: NUMLOCK0-9, Add, Subtract, Multiply, Divide, Point, Enter, Lock
+			} else {
+				Serial.println("pop_mode unknown combo!");
+				return HANDLED;
+			}
+		case L_0H:
+			emit_press(KEY_LEFT_CTRL);
+			return HANDLED;
+		case L_0T:
+			emit_press(KEY_LEFT_ALT);
+			return HANDLED;
+		case L_LT:
+			emit_press(KEY_LEFT_GUI);
+			return HANDLED;
+		case L_RT:
+			emit_press(KEY_RIGHT_SHIFT);
+			return HANDLED;
+		default:
+			if (combo_i == COMBO_MAX) {
+				Serial.println("pop_mode com too many keys");
+				pop_mode(mode_combo);
+				combo_i = 0;
+				return HANDLED;
+			}
+			combo_codes[combo_i++] = ev.code;
+			return HANDLED;
+	}
+}
+
+
+bool mode_russian(InEvent ev) {
+#F#define RUS_{>} KEY_{X<}
+#> ` 1 2 3 4 5 6 7 8 9 0      >>> YO  1   2   3   4   5   6   7   8   9   0
+#>   Q W E R T Y U I O P [ ]  >>>     J   C   U   K   E   N   G  SH  SCH  Z   H  HAR
+#>   A S D F G H J K L ; '    >>>     F   Y   V   A   P   R   O   L   D  ZH  EE
+#>   Z X C V B N M , . /      >>>    YA  CH   S   M   I   T  SOF  B  YU  PER
+
+	switch (ev.code) {
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				Serial.println("rus");
+#f				emit_press(KEY_RIGHT_CTRL);
+#f				emit_press(KEY_MENU);
+#f				emit_release(KEY_MENU);
+#f				emit_release(KEY_RIGHT_CTRL);
+#f				emit_press(RUS_{>});
+#f			} else if (ev.value == RELEASE) {
+#f				emit_release(RUS_{>});
+#f				Serial.println("eng");
+#f				emit_press(KEY_LEFT_CTRL);
+#f				emit_press(KEY_LEFT_GUI);
+#f				emit_release(KEY_LEFT_GUI);
+#f				emit_release(KEY_LEFT_CTRL);
+#f			}
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0
+#> 0T 1T 2T 3T 4T 5T  6T 7T 8T 9T AT BT  >>>   YO  J   C   U   K   E     N   G   SH SCH  Z  H
+#> 0H 1H 2H 3H 4H 5H  6H 7H 8H 9H AH BH  >>>  HAR  F   Y   V   A   P     R   O   L   D   ZH EE
+#>    1B 2B 3B 4B 5B  6B 7B 8B 9B AB BB  >>>      YA  CH   S   M   I     T  SOF  B   YU  .  ##
+#>                LT  RT                 >>>                      ###   ###
+
+		// TODO: separate extended for russian?
+		// TODO: separate controlesque for russian?
+		default: return PASSTHROUGH;
+	}
+}

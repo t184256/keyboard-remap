@@ -1,0 +1,36 @@
+// only works when included in .ino
+// this is the reason why I didn't go for separate compilation
+#include <HID-Project.h>  // only works when included in .ino, the reason for .part.c
+
+
+#F#define KEY_{N<} KEY_{N>}
+#> AP0 AP1 AP2 AP3 AP4 AP5  >>>  F13 F14 F15 F16 F17 F18
+#> WM0 WM1 WM2 WM3 WM4 WM5  >>>  F19 F24 MENU2 SELECT PRIOR LANG1
+#> GL1 GL2 GL3 GL4 GL5  >>>  LANG5 LANG6 LANG7 LANG8 LANG9
+#> AC1 AC2 AC3 AC4 AC5  >>>  INTERNATIONAL1 INTERNATIONAL6 INTERNATIONAL7 INTERNATIONAL8 INTERNATIONAL9
+
+
+void emitter_setup(void) {
+	BootKeyboard.begin();
+}
+
+void emit_press(uint16_t code) {
+	BootKeyboard.press((enum KeyboardKeycode) code);
+}
+
+void emit_release(uint16_t code) {
+	BootKeyboard.release((enum KeyboardKeycode) code);
+}
+
+void emit_release_all(void) {
+	BootKeyboard.releaseAll();
+}
+
+void emit_key(uint16_t code_, bool value) {
+	enum KeyboardKeycode code = code_;
+	if (value) {
+		BootKeyboard.press(code);
+	} else {
+		BootKeyboard.release(code);
+	}
+}
