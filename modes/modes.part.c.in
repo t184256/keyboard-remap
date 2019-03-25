@@ -112,6 +112,10 @@ bool mode_spaceshifted_defused(InEvent ev) {
 		emit_release_all();
 		return HANDLED;
 	}
+	if (ev.code == L_BT) {
+		emit_key(KEY_BACKSLASH, ev.value);
+		return HANDLED;
+	}
 	if (ev.code == L_LT) {
 		emit_key(KEY_BACKSPACE, ev.value);
 		return HANDLED;
