@@ -176,10 +176,30 @@ bool mode_extended_temporary(InEvent ev) {
 #F		case L_{<}:
 #f			emit_key(KEY_{X>}, ev.value);
 #f			return HANDLED;
-#>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>      GL1 GL2 GL3 GL4 GL5   AC1 AC2 AC3 AC4 AC5
-#> 0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  WM0 WM1 WM2 WM3 WM4 WM5   #~#  [   ]  #{# #}# #+#
-#> 0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  AP0 AP1 AP2 AP3 AP4 AP5   LTA DNA UPA RTA  =   `
+#>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>      #1# #2# #3# #4# #5#   #6# #7# #8# #9# #0#
+#> 0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  #Y# #Q# #W# #F# #P# #G#   #~#  [   ]  #{# #}# #+#
+#> 0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  #X# #A# #R# #S# #T# #D#   LTA DNA UPA RTA  =   `
 #>    1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>      UND COP CUT PAS DEL   HOM PDN PUP END  \
+#>                LT   RT                 >>>                      ###   #_#
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_press(KEY_LEFT_CTRL);
+#f				emit_press(KEY_LEFT_SHIFT);
+#f				emit_press(KEY_LEFT_ALT);
+#f				emit_press(KEY_{X>});
+#f				return HANDLED;
+#f			} else if (ev.value == RELEASE) {
+#f				emit_release(KEY_{X>});
+#f				emit_release(KEY_LEFT_ALT);
+#f				emit_release(KEY_LEFT_SHIFT);
+#f				emit_release(KEY_LEFT_CTRL);
+#f				return HANDLED;
+#f			}
+#>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0
+#> 0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>   Y   Q   W   F   P   G    #~# #[# #]# #{# #}# #+#
+#> 0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>   X   A   R   S   T   D    ### ### ### ### #=# #`#
+#>    1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>      ### ### ### ### ###   ### ### ### ### #\#
 #>                LT   RT                 >>>                      ###   #_#
 
 		case L_LT:
@@ -201,8 +221,8 @@ bool mode_extended_temporary(InEvent ev) {
 #f				emit_press(KEY_{>});
 #f				emit_release(KEY_{>});
 #f				emit_release(KEY_LEFT_SHIFT);
-#f				return HANDLED;
 #f			}
+#f			return HANDLED;
 #> 6T 9T AT BT  >>>  TILDE LEFT_BRACE RIGHT_BRACE EQUAL
 
 		default: return PASSTHROUGH;
@@ -214,11 +234,25 @@ bool mode_extended_sticky(InEvent ev) {
 #F		case L_{<}:  // Left hand actions keep the extended mode
 #f			emit_key(KEY_{X>}, ev.value);
 #f			return HANDLED;
-#>    1N 2N 3N 4N 5N  >>>      GL1 GL2 GL3 GL4 GL5
-#> 0T 1T 2T 3T 4T 5T  >>>  WM0 WM1 WM2 WM3 WM4 WM5
-#> 0H 1H 2H 3H 4H 5H  >>>  AP0 AP1 AP2 AP3 AP4 AP5
 #>    1B 2B 3B 4B 5B  >>>      UND CUT COP PAS DEL
-#>                LT  >>>                      ###
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_press(KEY_LEFT_CTRL);
+#f				emit_press(KEY_LEFT_SHIFT);
+#f				emit_press(KEY_LEFT_ALT);
+#f				emit_press(KEY_{X>});
+#f			} else if (ev.value == RELEASE) {
+#f				emit_release(KEY_{X>});
+#f				emit_release(KEY_LEFT_ALT);
+#f				emit_release(KEY_LEFT_SHIFT);
+#f				emit_release(KEY_LEFT_CTRL);
+#f			}
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N  >>>      1   2   3   4   5
+#> 0T 1T 2T 3T 4T 5T  >>>  Y   Q   W   F   P   G
+#> 0H 1H 2H 3H 4H 5H  >>>  X   A   R   S   T   D
+
 
 		case L_LT:
 			if (ev.value == PRESS) {
@@ -228,16 +262,31 @@ bool mode_extended_sticky(InEvent ev) {
 			} // else ignore
 			return HANDLED;
 
-#F		case L_{<}:  // Right hand actions keep the extended mode
+#F		case L_{<}:  // Right hand actions exit the extended mode
 #f			emit_key(KEY_{X>}, ev.value);
 #f			if (ev.value == RELEASE)
 #f				pop_mode(mode_extended_sticky);
 #f			return HANDLED;
-#> 6N 7N 8N 9N AN     >>>  AC1 AC2 AC3 AC4 AC5
 #> 6T 7T 8T 9T AT BT  >>>  #~#  [   ]  #{# #}# #+#
 #> 6H 7H 8H 9H AH BH  >>>  LTA DNA UPA RTA  =   `
 #> 6B 7B 8B 9B AB     >>>  HOM PDN PUP END  \
 #> RT                 >>>  #_#
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_press(KEY_LEFT_CTRL);
+#f				emit_press(KEY_LEFT_SHIFT);
+#f				emit_press(KEY_LEFT_ALT);
+#f				emit_press(KEY_{X>});
+#f			} else if (ev.value == RELEASE) {
+#f				emit_release(KEY_{X>});
+#f				emit_release(KEY_LEFT_ALT);
+#f				emit_release(KEY_LEFT_SHIFT);
+#f				emit_release(KEY_LEFT_CTRL);
+#f				pop_mode(mode_extended_sticky);
+#f			}
+#f			return HANDLED;
+#> 6N 7N 8N 9N 0N  >>>  6  7  8  9  0
 
 		case L_RT:
 			if (ev.value == PRESS) {  // UNDERSCORE
