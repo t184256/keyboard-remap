@@ -27,7 +27,7 @@ void emit_release_all(void) {
 }
 
 void emit_key(uint16_t code_, bool value) {
-	enum KeyboardKeycode code = code_;
+	enum KeyboardKeycode code = (enum KeyboardKeycode) code_;
 	if (value) {
 		BootKeyboard.press(code);
 	} else {
