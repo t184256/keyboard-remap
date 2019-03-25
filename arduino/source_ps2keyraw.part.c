@@ -53,7 +53,7 @@ struct InEvent source_read_keycode(void) {
 
 	ev.code = c;
 	ev.value = !release_flag_happened;
-	ev.time = millis;
+	ev.time = millis();
 
 	extended_flag_happened = release_flag_happened = 0;
 	return ev;

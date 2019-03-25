@@ -5,7 +5,7 @@
 #define PRESS 1
 #define RELEASE 0
 
-#define EXPIRATION_MS 500
+#define EXPIRATION_MS 300
 
 bool mode_base_colemak(InEvent ev);
 bool mode_russian(InEvent ev);
@@ -83,6 +83,11 @@ bool mode_base_colemak(InEvent ev) {
 
 
 bool mode_spaceshifted_primed(InEvent ev) {
+	if (ev.code != L_RT || fabs(ev.time - spaceshifted_time) > EXPIRATION_MS) {
+		Serial.println("swap_mode msp->mpd");
+		swap_mode(mode_spaceshifted_primed, mode_spaceshifted_defused);
+		return mode_spaceshifted_defused(ev);
+	}
 	if (ev.code == L_RT && ev.value == PRESS)  // REPEAT
 		return HANDLED;
 	if (ev.code == L_RT && ev.value == RELEASE) {
@@ -93,11 +98,6 @@ bool mode_spaceshifted_primed(InEvent ev) {
 		emit_release(KEY_SPACE);
 		emit_release_all();
 		return HANDLED;
-	}
-	if (ev.value == PRESS || fabs(ev.time - spaceshifted_time) > EXPIRATION_MS) {
-		Serial.println("swap_mode msp->mpd");
-		swap_mode(mode_spaceshifted_primed, mode_spaceshifted_defused);
-		return mode_spaceshifted_defused(ev);
 	}
 	return PASSTHROUGH;
 }
@@ -121,6 +121,11 @@ bool mode_spaceshifted_defused(InEvent ev) {
 
 
 bool mode_controlesque_primed(InEvent ev) {
+	if (ev.code != L_0H || fabs(ev.time - controlesque_time) > EXPIRATION_MS) {
+		Serial.println("swap_mode cep->ced");
+		swap_mode(mode_controlesque_primed, mode_controlesque_defused);
+		return mode_controlesque_defused(ev);
+	}
 	if (ev.code == L_0H && ev.value == PRESS)  // REPEAT
 		return HANDLED;
 	if (ev.code == L_0H && ev.value == RELEASE) {
@@ -131,11 +136,6 @@ bool mode_controlesque_primed(InEvent ev) {
 		emit_release(KEY_ESC);
 		emit_release_all();
 		return HANDLED;
-	}
-	if (ev.value == PRESS || fabs(ev.time - controlesque_time) > EXPIRATION_MS) {
-		Serial.println("swap_mode cep->ced");
-		swap_mode(mode_controlesque_primed, mode_controlesque_defused);
-		return mode_controlesque_defused(ev);
 	}
 	return PASSTHROUGH;
 }
