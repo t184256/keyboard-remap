@@ -1,7 +1,7 @@
 /* Copyright (c) 2017-2019 Alexander Sosedkin <monk@unboiled.info>.
  * Firmware for my custom PS/2 Kinesis with an Arduino Leonardo inside.
  * Interfaces with PS/2 controller, acts as USB keyboard.
- * Implements a Colemak-inspired layout and does an obscene amount of other things.
+ * Implements a Colemak-inspired layout and does an obscene amount of other things.vdmмьvu
  *
  * Uses Arduino HID-Project library by NicoHood <blog@nicohood.de>.
  * Uses PS2KeyAdvanced by Paul Carpenter, PC Services <sales@pcserviceselectronics.co.uk>.
@@ -28,10 +28,5 @@ void setup(void) {
 
 void loop() {
   struct InEvent ev = source_read_keycode();
-  Serial.print("Read: ");
-  Serial.print(ev.code, HEX);
-  Serial.print(" ");
-  Serial.println(ev.value);
-
   handle_event(ev);
 }
