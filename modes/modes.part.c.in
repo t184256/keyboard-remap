@@ -1,5 +1,7 @@
 #include "../core/source_event.h"
 
+#include <math.h>
+
 #define MODE_INITIAL mode_base_colemak
 
 #define PRESS 1
@@ -7,16 +9,16 @@
 
 #define EXPIRATION_MS 300
 
-bool mode_base_colemak(InEvent ev);
-bool mode_russian(InEvent ev);
-bool mode_spaceshifted_primed(InEvent ev);
-bool mode_spaceshifted_defused(InEvent ev);
-bool mode_controlesque_primed(InEvent ev);
-bool mode_controlesque_defused(InEvent ev);
-bool mode_extended_undecided(InEvent ev);
-bool mode_extended_temporary(InEvent ev);
-bool mode_extended_sticky(InEvent ev);
-bool mode_combo(InEvent ev);
+enum ModeResult mode_base_colemak(struct InEvent ev);
+enum ModeResult mode_russian(struct InEvent ev);
+enum ModeResult mode_spaceshifted_primed(struct InEvent ev);
+enum ModeResult mode_spaceshifted_defused(struct InEvent ev);
+enum ModeResult mode_controlesque_primed(struct InEvent ev);
+enum ModeResult mode_controlesque_defused(struct InEvent ev);
+enum ModeResult mode_extended_undecided(struct InEvent ev);
+enum ModeResult mode_extended_temporary(struct InEvent ev);
+enum ModeResult mode_extended_sticky(struct InEvent ev);
+enum ModeResult mode_combo(struct InEvent ev);
 
 unsigned long spaceshifted_time, controlesque_time;
 
@@ -25,7 +27,7 @@ int combo_i;
 uint16_t combo_codes[COMBO_MAX];
 
 
-bool mode_base_colemak(InEvent ev) {
+enum ModeResult mode_base_colemak(struct InEvent ev) {
 	switch (ev.code) {
 
 #F		case L_{<}:
@@ -47,7 +49,7 @@ bool mode_base_colemak(InEvent ev) {
 
 		case L_RT:
 			if (ev.value == PRESS) {
-				emit_press(KEY_RIGHT_SHIFT);
+				emit_press(KEY_RIGHTSHIFT);
 				push_mode(mode_spaceshifted_primed);
 				spaceshifted_time = ev.time;
 			} else {
@@ -57,7 +59,7 @@ bool mode_base_colemak(InEvent ev) {
 
 		case L_0H:
 			if (ev.value == PRESS) {
-				emit_press(KEY_LEFT_CTRL);
+				emit_press(KEY_LEFTCTRL);
 				push_mode(mode_controlesque_primed);
 				controlesque_time = ev.time;
 			} else {
@@ -78,7 +80,7 @@ bool mode_base_colemak(InEvent ev) {
 }
 
 
-bool mode_spaceshifted_primed(InEvent ev) {
+enum ModeResult mode_spaceshifted_primed(struct InEvent ev) {
 	if (ev.code != L_RT || fabs(ev.time - spaceshifted_time) > EXPIRATION_MS) {
 		swap_mode(mode_spaceshifted_primed, mode_spaceshifted_defused);
 		return mode_spaceshifted_defused(ev);
@@ -87,7 +89,7 @@ bool mode_spaceshifted_primed(InEvent ev) {
 		return HANDLED;
 	if (ev.code == L_RT && ev.value == RELEASE) {
 		pop_mode(mode_spaceshifted_primed);
-		emit_release(KEY_RIGHT_SHIFT);
+		emit_release(KEY_RIGHTSHIFT);
 		emit_press(KEY_SPACE);
 		emit_release(KEY_SPACE);
 		emit_release_all();
@@ -96,12 +98,12 @@ bool mode_spaceshifted_primed(InEvent ev) {
 	return PASSTHROUGH;
 }
 
-bool mode_spaceshifted_defused(InEvent ev) {
+enum ModeResult mode_spaceshifted_defused(struct InEvent ev) {
 	if (ev.code == L_RT && ev.value == PRESS)  // REPEAT
 		return HANDLED;
 	if (ev.code == L_RT && ev.value == RELEASE) {
 		pop_mode(mode_spaceshifted_defused);
-		emit_release(KEY_RIGHT_SHIFT);
+		emit_release(KEY_RIGHTSHIFT);
 		emit_release_all();
 		return HANDLED;
 	}
@@ -117,7 +119,7 @@ bool mode_spaceshifted_defused(InEvent ev) {
 }
 
 
-bool mode_controlesque_primed(InEvent ev) {
+enum ModeResult mode_controlesque_primed(struct InEvent ev) {
 	if (ev.code != L_0H || fabs(ev.time - controlesque_time) > EXPIRATION_MS) {
 		swap_mode(mode_controlesque_primed, mode_controlesque_defused);
 		return mode_controlesque_defused(ev);
@@ -126,7 +128,7 @@ bool mode_controlesque_primed(InEvent ev) {
 		return HANDLED;
 	if (ev.code == L_0H && ev.value == RELEASE) {
 		pop_mode(mode_controlesque_primed);
-		emit_release(KEY_LEFT_CTRL);
+		emit_release(KEY_LEFTCTRL);
 		emit_press(KEY_ESC);
 		emit_release(KEY_ESC);
 		emit_release_all();
@@ -135,12 +137,12 @@ bool mode_controlesque_primed(InEvent ev) {
 	return PASSTHROUGH;
 }
 
-bool mode_controlesque_defused(InEvent ev) {
+enum ModeResult mode_controlesque_defused(struct InEvent ev) {
 	if (ev.code == L_0H && ev.value == PRESS)  // REPEAT
 		return HANDLED;
 	if (ev.code == L_0H && ev.value == RELEASE) {
 		pop_mode(mode_controlesque_defused);
-		emit_release(KEY_LEFT_CTRL);
+		emit_release(KEY_LEFTCTRL);
 		emit_release_all();
 		return HANDLED;
 	}
@@ -148,7 +150,7 @@ bool mode_controlesque_defused(InEvent ev) {
 }
 
 
-bool mode_extended_undecided(InEvent ev) {
+enum ModeResult mode_extended_undecided(struct InEvent ev) {
 	if (ev.code == L_LT && ev.value == PRESS)  // REPEAT
 		return HANDLED;
 	if (ev.code == L_LT && ev.value == RELEASE) {
@@ -159,7 +161,7 @@ bool mode_extended_undecided(InEvent ev) {
 	return mode_extended_temporary(ev);
 }
 
-bool mode_extended_temporary(InEvent ev) {
+enum ModeResult mode_extended_temporary(struct InEvent ev) {
 	switch (ev.code) {
 #F		case L_{<}:
 #f			emit_key(KEY_{X>}, ev.value);
@@ -172,16 +174,16 @@ bool mode_extended_temporary(InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFT_CTRL);
-#f				emit_press(KEY_LEFT_SHIFT);
-#f				emit_press(KEY_LEFT_ALT);
+#f				emit_press(KEY_LEFTCTRL);
+#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f				return HANDLED;
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
-#f				emit_release(KEY_LEFT_ALT);
-#f				emit_release(KEY_LEFT_SHIFT);
-#f				emit_release(KEY_LEFT_CTRL);
+#f				emit_release(KEY_LEFTALT);
+#f				emit_release(KEY_LEFTSHIFT);
+#f				emit_release(KEY_LEFTCTRL);
 #f				return HANDLED;
 #f			}
 #>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0
@@ -198,25 +200,25 @@ bool mode_extended_temporary(InEvent ev) {
 			return HANDLED;
 
 		case L_RT:
-			emit_key(KEY_RETURN, ev.value);
+			emit_key(KEY_ENTER, ev.value);
 			return HANDLED;
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {  // Enter shifted char and leave the mode
 #f				emit_release_all();
-#f				emit_press(KEY_LEFT_SHIFT);
+#f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_{>});
 #f				emit_release(KEY_{>});
-#f				emit_release(KEY_LEFT_SHIFT);
+#f				emit_release(KEY_LEFTSHIFT);
 #f			}
 #f			return HANDLED;
-#> 6T 9T AT BT  >>>  TILDE LEFT_BRACE RIGHT_BRACE EQUAL
+#> 6T 9T AT BT  >>>  GRAVE LEFTBRACE RIGHTBRACE EQUAL
 
 		default: return PASSTHROUGH;
 	}
 }
 
-bool mode_extended_sticky(InEvent ev) {
+enum ModeResult mode_extended_sticky(struct InEvent ev) {
 	switch (ev.code) {
 #F		case L_{<}:  // Left hand actions keep the extended mode
 #f			emit_key(KEY_{X>}, ev.value);
@@ -225,15 +227,15 @@ bool mode_extended_sticky(InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFT_CTRL);
-#f				emit_press(KEY_LEFT_SHIFT);
-#f				emit_press(KEY_LEFT_ALT);
+#f				emit_press(KEY_LEFTCTRL);
+#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
-#f				emit_release(KEY_LEFT_ALT);
-#f				emit_release(KEY_LEFT_SHIFT);
-#f				emit_release(KEY_LEFT_CTRL);
+#f				emit_release(KEY_LEFTALT);
+#f				emit_release(KEY_LEFTSHIFT);
+#f				emit_release(KEY_LEFTCTRL);
 #f			}
 #f			return HANDLED;
 #>    1N 2N 3N 4N 5N  >>>      1   2   3   4   5
@@ -260,27 +262,27 @@ bool mode_extended_sticky(InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFT_CTRL);
-#f				emit_press(KEY_LEFT_SHIFT);
-#f				emit_press(KEY_LEFT_ALT);
+#f				emit_press(KEY_LEFTCTRL);
+#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
-#f				emit_release(KEY_LEFT_ALT);
-#f				emit_release(KEY_LEFT_SHIFT);
-#f				emit_release(KEY_LEFT_CTRL);
+#f				emit_release(KEY_LEFTALT);
+#f				emit_release(KEY_LEFTSHIFT);
+#f				emit_release(KEY_LEFTCTRL);
 #f				pop_mode(mode_extended_sticky);
 #f			}
 #f			return HANDLED;
-#> 6N 7N 8N 9N 0N  >>>  6  7  8  9  0
+#> 6N 7N 8N 9N AN  >>>  6  7  8  9  0
 
 		case L_RT:
 			if (ev.value == PRESS) {  // UNDERSCORE
 				pop_mode(mode_extended_sticky);
-				emit_press(KEY_LEFT_SHIFT);
+				emit_press(KEY_LEFTSHIFT);
 				emit_press(KEY_MINUS);
 				emit_release(KEY_MINUS);
-				emit_release(KEY_LEFT_SHIFT);
+				emit_release(KEY_LEFTSHIFT);
 				emit_release_all();
 			} // else ignore
 			return HANDLED;
@@ -289,20 +291,20 @@ bool mode_extended_sticky(InEvent ev) {
 #f			if (ev.value == PRESS) {  // Enter shifted char and leave the mode
 #f				pop_mode(mode_extended_sticky);
 #f				emit_release_all();
-#f				emit_press(KEY_LEFT_SHIFT);
+#f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_{>});
 #f				emit_release(KEY_{>});
-#f				emit_release(KEY_LEFT_SHIFT);
+#f				emit_release(KEY_LEFTSHIFT);
 #f				return HANDLED;
 #f			}
-#> 6T 9T AT BT  >>>  TILDE LEFT_BRACE RIGHT_BRACE EQUAL
+#> 6T 9T AT BT  >>>  GRAVE LEFTBRACE RIGHTBRACE EQUAL
 
 		default: return PASSTHROUGH;
 	}
 }
 
 
-bool mode_combo(InEvent ev) {
+enum ModeResult mode_combo(struct InEvent ev) {
 #F#define LETTER_{>} L_{<}
 #>  0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  ###  Q  W  F  P  G    J  L  U  Y  ## ###
 #>  0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  ###  A  R  S  T  D    H  N  E  I  O  ###
@@ -376,7 +378,7 @@ bool mode_combo(InEvent ev) {
 #f				emit_release_all();
 #f				return HANDLED;
 #> combo_i==2&&c0==LETTER_E&&c1==LETTER_S  >>>  ESC		/// E+S == ESCAPE
-#> combo_i==2&&c0==LETTER_R&&c1==LETTER_E  >>>  RETURN		/// R+E == RETURN
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_E  >>>  ENTER		/// R+E == RETURN (ENTER)
 #> combo_i==2&&c0==LETTER_S&&c1==LETTER_P  >>>  SPACE		/// S+P == SPACE
 #> combo_i==2&&c0==LETTER_R&&c1==LETTER_T  >>>  RTA		/// R+T == RIGHT
 #> combo_i==2&&c0==LETTER_L&&c1==LETTER_T  >>>  LTA		/// L+T == LEFT
@@ -384,32 +386,35 @@ bool mode_combo(InEvent ev) {
 #> combo_i==2&&c0==LETTER_D&&c1==LETTER_N  >>>  DNA		/// D+N == DOWN
 #> combo_i==2&&c0==LETTER_H&&c1==LETTER_M  >>>  HOME		/// H+M == HOME
 #> combo_i==2&&c0==LETTER_E&&c1==LETTER_N  >>>  END		/// E+N == END
-#> combo_i==2&&c0==LETTER_P&&c1==LETTER_U  >>>  PUP		/// P+U == PAGE_UP
-#> combo_i==2&&c0==LETTER_P&&c1==LETTER_D  >>>  PDN		/// P+D == PAGE_DOWN
+#> combo_i==2&&c0==LETTER_P&&c1==LETTER_U  >>>  PUP		/// P+U == PAGEUP
+#> combo_i==2&&c0==LETTER_P&&c1==LETTER_D  >>>  PDN		/// P+D == PAGEDOWN
 #> combo_i==2&&c0==LETTER_T&&c1==LETTER_A  >>>  TAB		/// T+A == TAB
 #> combo_i==2&&c0==LETTER_E&&c1==LETTER_Q  >>>  EQUAL		/// E+Q == EQUAL
-#> combo_i==2&&c0==LETTER_T&&c1==LETTER_I  >>>  TILDE		/// T+I == TILDE
-#> combo_i==2&&c0==LETTER_L&&c1==LETTER_B  >>>  LEFT_BRACE	/// L+B == LEFT_BRACE
-#> combo_i==2&&c0==LETTER_R&&c1==LETTER_B  >>>  RIGHT_BRACE	/// R+B == RIGHT_BRACE
+#> combo_i==2&&c0==LETTER_G&&c1==LETTER_R  >>>  GRAVE		/// G+R == TILDE (GRAVE)
+#> combo_i==2&&c0==LETTER_T&&c1==LETTER_I  >>>  GRAVE		/// T+I == GRAVE
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_B  >>>  LEFTBRACE	/// L+B == LEFTBRACE
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_B  >>>  RIGHTBRACE	/// R+B == RIGHTBRACE
 #> combo_i==2&&c0==LETTER_M&&c1==LETTER_N  >>>  MENU		/// M+N == MENU
 #> combo_i==2&&c0==LETTER_P&&c1==LETTER_A  >>>  PAUSE		/// P+A == PAUSE
 #> combo_i==2&&c0==LETTER_I&&c1==LETTER_N  >>>  INSERT		/// I+N == INSERT
 #> combo_i==2&&c0==LETTER_D&&c1==LETTER_L  >>>  DELETE		/// D+E == DELETE
-#> combo_i==2&&c0==LETTER_P&&c1==LETTER_S  >>>  PRINTSCREEN	/// P+S == PRINTSCREEN
-#> combo_i==2&&c0==LETTER_S&&c1==LETTER_C  >>>  SCROLL_LOCK	/// S+C == SCROLL_LOCK
-#> combo_i==2&&c0==LETTER_C&&c1==LETTER_L  >>>  CAPS_LOCK	/// C+L == CAPS_LOCK
-#> combo_i==2&&c0==LETTER_L&&c1==LETTER_S  >>>  LEFT_SHIFT	/// L+S == LEFT_SHIFT
-#> combo_i==2&&c0==LETTER_R&&c1==LETTER_S  >>>  RIGHT_SHIFT	/// R+S == RIGHT_SHIFT
-#> combo_i==2&&c0==LETTER_L&&c1==LETTER_A  >>>  LEFT_ALT	/// L+A == LEFT_ALT
-#> combo_i==2&&c0==LETTER_R&&c1==LETTER_A  >>>  RIGHT_ALT	/// R+A == RIGHT_ALT
-#> combo_i==2&&c0==LETTER_L&&c1==LETTER_C  >>>  LEFT_CTRL	/// L+C == LEFT_CTRL
-#> combo_i==2&&c0==LETTER_R&&c1==LETTER_C  >>>  RIGHT_CTRL	/// R+C == RIGHT_CTRL
-#> combo_i==2&&c0==LETTER_L&&c1==LETTER_W  >>>  LEFT_GUI	/// L+W == LEFT_GUI
-#> combo_i==2&&c0==LETTER_R&&c1==LETTER_W  >>>  RIGHT_GUI	/// R+W == RIGHT_GUI
+#> combo_i==2&&c0==LETTER_S&&c1==LETTER_Y  >>>  SYSRQ		/// P+Y == SYSRQ (PRINTSCREEN)
+#> combo_i==2&&c0==LETTER_P&&c1==LETTER_S  >>>  SYSRQ		/// S+Y == PRINTSCREEN
+#> combo_i==2&&c0==LETTER_S&&c1==LETTER_C  >>>  SCROLLLOCK	/// S+C == SCROLLLOCK
+#> combo_i==2&&c0==LETTER_C&&c1==LETTER_L  >>>  CAPSLOCK	/// C+L == CAPSLOCK
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_S  >>>  LEFTSHIFT	/// L+S == LEFTSHIFT
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_S  >>>  RIGHTSHIFT	/// R+S == RIGHTSHIFT
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_A  >>>  LEFTALT		/// L+A == LEFTALT
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_A  >>>  RIGHTALT	/// R+A == RIGHTALT
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_C  >>>  LEFTCTRL	/// L+C == LEFTCTRL
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_C  >>>  RIGHTCTRL	/// R+C == RIGHTCTRL
+#> combo_i==2&&c0==LETTER_L&&c1==LETTER_W  >>>  LEFTMETA	/// L+W == LEFTMETA
+#> combo_i==2&&c0==LETTER_R&&c1==LETTER_W  >>>  RIGHTMETA	/// R+W == RIGHTMETA
 #> combo_i==2&&c0==LETTER_P&&c1==LETTER_W  >>>  POWER		/// P+W == POWER
-#> combo_i==2&&c0==LETTER_V&&c1==LETTER_M  >>>  VOLUME_MUTE	/// V+M == VOLUME_MUTE
-#> combo_i==2&&c0==LETTER_V&&c1==LETTER_U  >>>  VOLUME_UP	/// V+U == VOLUME_UP
-#> combo_i==2&&c0==LETTER_V&&c1==LETTER_D  >>>  VOLUME_DOWN	/// V+D == VOLUME_DOWN
+#> combo_i==2&&c0==LETTER_M&&c1==LETTER_U  >>>  MUTE		/// M+U == MUTE
+#> combo_i==2&&c0==LETTER_V&&c1==LETTER_M  >>>  MUTE		/// V+M == MUTE (VOLUMEMUTE)
+#> combo_i==2&&c0==LETTER_V&&c1==LETTER_U  >>>  VOLUMEUP	/// V+U == VOLUMEUP
+#> combo_i==2&&c0==LETTER_V&&c1==LETTER_D  >>>  VOLUMEDOWN	/// V+D == VOLUMEDOWN
 #> combo_i==2&&c0==LETTER_M&&c1==LETTER_M  >>>  MIC_MUTE	/// M+M == MIC_MUTE
 #> combo_i==3&&c0==LETTER_B&&c1==LETTER_S&&c2==LETTER_P  >>>  BACKSPACE  /// B+S+P == BACKSPACE
 #> combo_i==3&&c0==LETTER_B&&c1==LETTER_S&&c2==LETTER_L  >>>  BACKSLASH  /// B+S+L == BACKSLASH
@@ -419,16 +424,16 @@ bool mode_combo(InEvent ev) {
 				return HANDLED;
 			}
 		case L_0H:
-			emit_press(KEY_LEFT_CTRL);
+			emit_press(KEY_LEFTCTRL);
 			return HANDLED;
 		case L_0T:
-			emit_press(KEY_LEFT_ALT);
+			emit_press(KEY_LEFTALT);
 			return HANDLED;
 		case L_LT:
-			emit_press(KEY_LEFT_GUI);
+			emit_press(KEY_LEFTMETA);
 			return HANDLED;
 		case L_RT:
-			emit_press(KEY_RIGHT_SHIFT);
+			emit_press(KEY_RIGHTSHIFT);
 			return HANDLED;
 		default:
 			if (combo_i == COMBO_MAX) {
@@ -442,28 +447,28 @@ bool mode_combo(InEvent ev) {
 }
 
 
-bool mode_russian(InEvent ev) {
+enum ModeResult mode_russian(struct InEvent ev) {
 #F#define RUS_{>} KEY_{X<}
 #> ` 1 2 3 4 5 6 7 8 9 0      >>> YO  1   2   3   4   5   6   7   8   9   0
 #>   Q W E R T Y U I O P [ ]  >>>     J   C   U   K   E   N   G  SH  SCH  Z   H  HAR
 #>   A S D F G H J K L ; '    >>>     F   Y   V   A   P   R   O   L   D  ZH  EE
-#>   Z X C V B N M , . /      >>>    YA  CH   S   M   I   T  SOF  B  YU  PER
+#>   Z X C V B N M , . /      >>>    YA  CH   S   M   I   T  SOF  B  YU  DOT
 
 	switch (ev.code) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_RIGHT_CTRL);
-#f				emit_press(KEY_MENU);
-#f				emit_release(KEY_MENU);
-#f				emit_release(KEY_RIGHT_CTRL);
+#f				emit_press(KEY_RIGHTCTRL);
+#f				emit_press(KEY_COMPOSE);
+#f				emit_release(KEY_COMPOSE);
+#f				emit_release(KEY_RIGHTCTRL);
 #f				emit_press(RUS_{>});
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(RUS_{>});
-#f				emit_press(KEY_LEFT_CTRL);
-#f				emit_press(KEY_LEFT_GUI);
-#f				emit_release(KEY_LEFT_GUI);
-#f				emit_release(KEY_LEFT_CTRL);
+#f				emit_press(KEY_LEFTCTRL);
+#f				emit_press(KEY_LEFTMETA);
+#f				emit_release(KEY_LEFTMETA);
+#f				emit_release(KEY_LEFTCTRL);
 #f			}
 #f			return HANDLED;
 #>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0

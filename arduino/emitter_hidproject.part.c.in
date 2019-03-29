@@ -1,9 +1,20 @@
 // only works when included in .ino
 // this is the reason why I didn't go for separate compilation
-#include <HID-Project.h>  // only works when included in .ino, the reason for .part.c
+#include <HID-Project.h>
 
 
 #F#define KEY_{N<} KEY_{N>}
+#> LEFTBRACE RIGHTBRACE  >>>  LEFT_BRACE RIGHT_BRACE
+#> LEFTSHIFT RIGHTSHIFT  >>>  LEFT_SHIFT RIGHT_SHIFT
+#> LEFTCTRL RIGHTCTRL  >>>  LEFT_CTRL RIGHT_CTRL
+#> LEFTALT RIGHTALT  >>>  LEFT_CTRL RIGHT_CTRL
+#> LEFTMETA RIGHTMETA  >>>  LEFT_GUI RIGHT_GUI
+#> NUMLOCK CAPSLOCK SCROLLLOCK >>>  NUM_LOCK CAPS_LOCK SCROLL_LOCK
+#> APOSTROPHE GRAVE DOT  >>>  QUOTE TILDE PERIOD
+#> PAGEDOWN PAGEUP  >>>  PAGE_DOWN PAGE_UP
+#> SYSRQ  >>>  PRINTSCREEN
+#> VOLUMEDOWN VOLUMEUP VOLUMEMUTE >>>  VOLUME_DOWN VOLUME_UP VOLUME_MUTE
+#> COMPOSE  >>>  APPLICATION
 
 
 void emitter_setup(void) {

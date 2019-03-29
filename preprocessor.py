@@ -6,29 +6,30 @@ import sys
 
 
 SHORT = {
-    'CAP': 'CAPS_LOCK', 'INS': 'INSERT', 'DEL': 'DELETE',
-    'LTA': 'LEFT_ARROW', 'RTA': 'RIGHT_ARROW',
-    'UPA': 'UP_ARROW', 'DNA': 'DOWN_ARROW',
-    'LSH': 'LEFT_SHIFT', 'RSH': 'RIGHT_SHIFT',
-    'LCT': 'LEFT_CTRL', 'RCT': 'RIGHT_CTRL',
-    'LAL': 'LEFT_ALT', 'RAL': 'RIGHT_ALT',
-    'LWI': 'LEFT_WINDOWS', 'RWI': 'RIGHT_WINDOWS',
-    'PUP': 'PAGE_UP', 'PDN': 'PAGE_DOWN',
+    'CAP': 'CAPSLOCK', 'INS': 'INSERT', 'DEL': 'DELETE',
+    'LTA': 'LEFT', 'RTA': 'RIGHT',
+    'UPA': 'UP', 'DNA': 'DOWN',
+    'LSH': 'LEFTSHIFT', 'RSH': 'RIGHTSHIFT',
+    'LCT': 'LEFTCTRL', 'RCT': 'RIGHTCTRL',
+    'LAL': 'LEFTALT', 'RAL': 'RIGHTALT',
+    'LWI': 'LEFTMETA', 'RWI': 'RIGHTMETA',
+    'PUP': 'PAGEUP', 'PDN': 'PAGEDOWN',
     'HOM': 'HOME',
     'BCK': 'BACKSPACE',
-    'TIL': 'TILDE', 'QUO': 'QUOTE', 'EQU': 'EQUAL',
-    'COM': 'COMMA', 'PER': 'PERIOD', 'MIN': 'MINUS',
+    'GRA': 'GRAVE', 'APO': 'APOSTROPHE', 'EQU': 'EQUAL',
+    'COM': 'COMMA', 'MIN': 'MINUS',
     'SLA': 'SLASH', 'BSL': 'BACKSLASH', 'SEM': 'SEMICOLON',
-    'LBR': 'LEFT_BRACE', 'RBR': 'RIGHT_BRACE',
+    'LBR': 'LEFTBRACE', 'RBR': 'RIGHTBRACE',
     'RET': 'RETURN',
-    'MUT': 'MUTE', 'VUP': 'VOLUME_UP', 'VDN': 'VOLUME_DOWN',
+    'MUT': 'MUTE', 'VUP': 'VOLUMEUP', 'VDN': 'VOLUMEDOWN',
     'MIC_MUTE': 'F20',  # I have no idea why, but it works in Linux
     'UND': 'UNDO', 'CUT': 'CUT', 'COP': 'COPY', 'PAS': 'PASTE',
+    'MUH': 'MUHENKAN', 'HEN': 'HENKAN', 'KAT': 'KATAKANAHIRAGANA',
 }
 
 ULTRASHORT = {
-    '`': 'TIL', '\'': 'QUO', '=': 'EQU',
-    ',': 'COM', '.': 'PER', '-': 'MIN',
+    '`': 'GRA', '\'': 'APO', '=': 'EQU',
+    ',': 'COM', '.': 'DOT', '-': 'MIN',
     '/': 'SLA', '\\': 'BSL', ';': 'SEM',
     '[': 'LBR', ']': 'RBR',
 }
