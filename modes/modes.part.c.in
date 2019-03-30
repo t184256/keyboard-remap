@@ -416,6 +416,7 @@ enum ModeResult mode_combo(struct InEvent ev) {
 #> combo_i==2&&c0==LETTER_V&&c1==LETTER_U  >>>  VOLUMEUP	/// V+U == VOLUMEUP
 #> combo_i==2&&c0==LETTER_V&&c1==LETTER_D  >>>  VOLUMEDOWN	/// V+D == VOLUMEDOWN
 #> combo_i==2&&c0==LETTER_M&&c1==LETTER_M  >>>  MIC_MUTE	/// M+M == MIC_MUTE
+#> combo_i==2&&c0==LETTER_M&&c1==LETTER_I  >>>  MINUS		/// M+I == MINUS (currently not in RU)
 #> combo_i==3&&c0==LETTER_B&&c1==LETTER_S&&c2==LETTER_P  >>>  BACKSPACE  /// B+S+P == BACKSPACE
 #> combo_i==3&&c0==LETTER_B&&c1==LETTER_S&&c2==LETTER_L  >>>  BACKSLASH  /// B+S+L == BACKSLASH
 // TODO: S+Y == ALT+PRINTSCREEN (SYSRQ)
@@ -477,6 +478,7 @@ enum ModeResult mode_russian(struct InEvent ev) {
 #>    1B 2B 3B 4B 5B  6B 7B 8B 9B AB BB  >>>      YA  CH   S   M   I     T  SOF  B   YU  .  ##
 #>                LT  RT                 >>>                      ###   ###
 
+		// TODO: find a place for -
 		// TODO: separate extended for russian?
 		// TODO: separate controlesque for russian?
 		default: return PASSTHROUGH;
