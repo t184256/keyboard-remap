@@ -9,7 +9,7 @@
 
 #include "../core/modes.part.c"
 
-#define EVDEV_FILENAME "/dev/input/event20"
+#define EVDEV_FILENAME "/dev/input/event7"
 #include "source_libevdev.part.c"
 #include "emitter_libevdev.part.c"
 
