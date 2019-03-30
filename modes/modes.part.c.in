@@ -26,6 +26,12 @@ unsigned long spaceshifted_time, controlesque_time;
 int combo_i;
 uint16_t combo_codes[COMBO_MAX];
 
+#ifndef LANGUAGE_RU
+#define LANGUAGE_RU() do { emit_press(KEY_RIGHTCTRL); emit_press(KEY_COMPOSE); emit_release(KEY_COMPOSE); emit_release(KEY_RIGHTCTRL); } while (0)
+#endif
+#ifndef LANGUAGE_EN
+#define LANGUAGE_EN() do { emit_press(KEY_LEFTCTRL); emit_press(KEY_LEFTMETA); emit_release(KEY_LEFTMETA); emit_release(KEY_LEFTCTRL); } while (0)
+#endif
 
 enum ModeResult mode_base_colemak(struct InEvent ev) {
 	switch (ev.code) {
@@ -326,10 +332,16 @@ enum ModeResult mode_combo(struct InEvent ev) {
 				// Double-tap on combo button == layout switch!
 				pop_mode(mode_combo);
 				if (peek_mode() == mode_base_colemak) {
+#ifdef LANGUAGE_TOGGLE
+					LANGUAGE_TOGGLE();
+#endif
 					push_mode(mode_russian);
 					emit_release_all();
 					return HANDLED;
 				} else if (peek_mode() == mode_russian) {
+#ifdef LANGUAGE_TOGGLE
+					LANGUAGE_TOGGLE();
+#endif
 					pop_mode(mode_russian);
 					emit_release_all();
 					return HANDLED;
@@ -465,17 +477,15 @@ enum ModeResult mode_russian(struct InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_RIGHTCTRL);
-#f				emit_press(KEY_COMPOSE);
-#f				emit_release(KEY_COMPOSE);
-#f				emit_release(KEY_RIGHTCTRL);
+#f#ifndef LANGUAGE_TOGGLE
+#f				LANGUAGE_RU();
+#f#endif
 #f				emit_press(RUS_{>});
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(RUS_{>});
-#f				emit_press(KEY_LEFTCTRL);
-#f				emit_press(KEY_LEFTMETA);
-#f				emit_release(KEY_LEFTMETA);
-#f				emit_release(KEY_LEFTCTRL);
+#f#ifndef LANGUAGE_TOGGLE
+#f				LANGUAGE_EN();
+#f#endif
 #f			}
 #f			return HANDLED;
 #>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0

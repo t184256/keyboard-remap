@@ -7,8 +7,8 @@
 #>  LSH ><  Z   X   C   V   B   N   M  ,  .  /  UPA RSH  >>>   ##  1B  2B  3B  4B  5B  ##  6B  7B  8B  9B  AB  BB ##
 #>    ## ## ## ##      SPACE    RWI [  ]  '  LTA DNA RTA >>>     ## ## ## ##         LT     RT  ## ## ## ## ## ##
 
-#define PASSTHROUGH_KEY(k) (k == KEY_MUTE || k == KEY_VOLUMEDOWN || k == KEY_VOLUMEUP || k == KEY_HOMEPAGE || k == KEY_SEARCH || k == KEY_POWER)
-
+#define PASSTHROUGH_KEY(k) (k == KEY_MUTE || k == KEY_VOLUMEDOWN || k == KEY_VOLUMEUP)
+#define LANGUAGE_TOGGLE() do { emit_press(KEY_LEFTCTRL); emit_press(KEY_SPACE); emit_release(KEY_SPACE); emit_release(KEY_LEFTCTRL); usleep(200000); } while (0)
 
 /*
 # Rapoo E6300
