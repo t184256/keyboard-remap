@@ -42,7 +42,6 @@ void emit_key(uint16_t code_, bool value) {
 	assert(!err);
 	err = libevdev_uinput_write_event(uidev, EV_SYN, SYN_REPORT, 0);
 	assert(!err);
-	usleep(10000);
 }
 
 void emit_press(uint16_t code) {
