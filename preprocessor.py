@@ -25,13 +25,14 @@ SHORT = {
     'MIC_MUTE': 'F20',  # I have no idea why, but it works in Linux
     'UND': 'UNDO', 'CUT': 'CUT', 'COP': 'COPY', 'PAS': 'PASTE',
     'MUH': 'MUHENKAN', 'HEN': 'HENKAN', 'KAT': 'KATAKANAHIRAGANA',
+    '102': '102ND',
 }
 
 ULTRASHORT = {
     '`': 'GRA', '\'': 'APO', '=': 'EQU',
     ',': 'COM', '.': 'DOT', '-': 'MIN',
     '/': 'SLA', '\\': 'BSL', ';': 'SEM',
-    '[': 'LBR', ']': 'RBR',
+    '[': 'LBR', ']': 'RBR', '><': '102',
 }
 
 
