@@ -74,9 +74,15 @@ enum ModeResult mode_base_colemak(struct InEvent ev) {
 				push_mode(mode_combo);
 			}
 			return HANDLED;
-
-		default: return PASSTHROUGH;
 	}
+// passthrough
+#ifdef PASSTHROUGH_KEY
+	if PASSTHROUGH_KEY(ev.code) {
+		emit_key(ev.code, ev.value);
+		return HANDLED;
+	}
+#endif
+	return PASSTHROUGH;
 }
 
 
