@@ -1,10 +1,14 @@
 { pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
-  buildInputs = with pkgs; [
+  nativeBuildInputs = with pkgs; [
     gcc
     gnumake
     libevdev
-    pkg-config
+    pkgconfig
+    python3
+  ];
+  propagatedBuildInputs = with pkgs; [
+    libevdev
   ];
   shellHook = ''
     echo 'clang' > .ccls
