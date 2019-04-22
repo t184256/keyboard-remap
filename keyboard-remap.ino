@@ -18,7 +18,7 @@
 
 
 void setup(void) {
-  delay(4000);  // To ease reprogramming. TODO: lower later. 
+  delay(2000);  // To ease reprogramming. TODO: lower later.
   source_setup();
   emitter_setup();
   modes_setup(MODE_INITIAL);
