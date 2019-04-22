@@ -33,6 +33,27 @@ uint16_t combo_codes[COMBO_MAX];
 #define LANGUAGE_EN() do { emit_press(KEY_LEFTCTRL); emit_press(KEY_LEFTMETA); emit_release(KEY_LEFTMETA); emit_release(KEY_LEFTCTRL); } while (0)
 #endif
 
+#ifndef EXT_NOTIFY_ON
+#define EXT_NOTIFY_ON() do { \
+	emit_press(KEY_RIGHTALT); \
+	emit_press(KEY_RIGHTMETA); \
+	emit_press(KEY_F11); \
+	emit_release(KEY_F11); \
+	emit_release(KEY_RIGHTMETA); \
+	emit_release(KEY_RIGHTALT); \
+} while (0)
+#endif
+#ifndef EXT_NOTIFY_OFF
+#define EXT_NOTIFY_OFF() do { \
+	emit_press(KEY_RIGHTALT); \
+	emit_press(KEY_RIGHTMETA); \
+	emit_press(KEY_F12); \
+	emit_release(KEY_F12); \
+	emit_release(KEY_RIGHTMETA); \
+	emit_release(KEY_RIGHTALT); \
+} while (0)
+#endif
+
 enum ModeResult mode_base_colemak(struct InEvent ev) {
 	switch (ev.code) {
 
@@ -166,6 +187,7 @@ enum ModeResult mode_extended_undecided(struct InEvent ev) {
 	if (ev.code == L_LT && ev.value == PRESS)  // REPEAT
 		return HANDLED;
 	if (ev.code == L_LT && ev.value == RELEASE) {
+		EXT_NOTIFY_ON();
 		swap_mode(mode_extended_undecided, mode_extended_sticky);
 		return HANDLED;
 	}
@@ -255,13 +277,16 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 			if (ev.value == PRESS) {
 				pop_mode(mode_extended_sticky);
 				emit_release_all();
+				EXT_NOTIFY_OFF();
 			} // else ignore
 			return HANDLED;
 
 #F		case L_{<}:  // Right hand actions exit the extended mode
 #f			emit_key(KEY_{X>}, ev.value);
-#f			if (ev.value == RELEASE)
+#f			if (ev.value == RELEASE) {
 #f				pop_mode(mode_extended_sticky);
+#f				EXT_NOTIFY_OFF();
+#f			}
 #f			return HANDLED;
 #> 6T 7T 8T 9T AT BT  >>>  #~#  [   ]  #{# #}# #+#
 #> 6H 7H 8H 9H AH BH  >>>  LTA DNA UPA RTA  =   `
@@ -277,6 +302,7 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 #f				emit_release(KEY_{X>});
 #f				emit_release(KEY_LEFTALT);
 #f				emit_release(KEY_LEFTMETA);
+#f				EXT_NOTIFY_OFF();
 #f				pop_mode(mode_extended_sticky);
 #f			}
 #f			return HANDLED;
@@ -289,6 +315,7 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 				emit_press(KEY_MINUS);
 				emit_release(KEY_MINUS);
 				emit_release(KEY_LEFTSHIFT);
+				EXT_NOTIFY_OFF();
 				emit_release_all();
 			} // else ignore
 			return HANDLED;
@@ -301,6 +328,7 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 #f				emit_press(KEY_{>});
 #f				emit_release(KEY_{>});
 #f				emit_release(KEY_LEFTSHIFT);
+#f				EXT_NOTIFY_OFF();
 #f				return HANDLED;
 #f			}
 #> 6T 9T AT BT  >>>  GRAVE LEFTBRACE RIGHTBRACE EQUAL
