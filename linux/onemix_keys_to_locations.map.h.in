@@ -8,3 +8,4 @@
 #>                                                 ##    >>>                                                 ##
 
 #define PASSTHROUGH_KEY(k) (k == KEY_MUTE || k == KEY_VOLUMEDOWN || k == KEY_VOLUMEUP || k == KEY_MICMUTE || k == KEY_BRIGHTNESSUP || k == KEY_BRIGHTNESSDOWN)
+#define LANGUAGE_TOGGLE() do { emit_press(KEY_LEFTMETA); emit_press(KEY_SPACE); emit_release(KEY_SPACE); emit_release(KEY_LEFTMETA); usleep(200000); } while (0)
