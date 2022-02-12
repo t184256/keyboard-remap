@@ -54,6 +54,39 @@ uint16_t combo_codes[COMBO_MAX];
 } while (0)
 #endif
 
+#ifndef WINDOW_FOCUS_MOD
+#define WINDOW_FOCUS_MOD(x) do { emit_press(x); emit_release(x); } while (0)
+#endif
+#ifndef WINDOW_FOCUS_LEFT
+#define WINDOW_FOCUS_LEFT() WINDOW_FOCUS_MOD(KEY_LEFT)
+#endif
+#ifndef WINDOW_FOCUS_DOWN
+#define WINDOW_FOCUS_DOWN() WINDOW_FOCUS_MOD(KEY_DOWN)
+#endif
+#ifndef WINDOW_FOCUS_UP
+#define WINDOW_FOCUS_UP() WINDOW_FOCUS_MOD(KEY_UP)
+#endif
+#ifndef WINDOW_FOCUS_RIGHT
+#define WINDOW_FOCUS_RIGHT() WINDOW_FOCUS_MOD(KEY_RIGHT)
+#endif
+
+#ifndef WINDOW_MOVE_MOD
+#define WINDOW_MOVE_MOD(x) do { emit_press(x); emit_release(x); } while (0)
+#endif
+#ifndef WINDOW_MOVE_LEFT
+#define WINDOW_MOVE_LEFT() WINDOW_MOVE_MOD(KEY_HOME)
+#endif
+#ifndef WINDOW_MOVE_DOWN
+#define WINDOW_MOVE_DOWN() WINDOW_MOVE_MOD(KEY_PAGEDOWN)
+#endif
+#ifndef WINDOW_MOVE_UP
+#define WINDOW_MOVE_UP() WINDOW_MOVE_MOD(KEY_PAGEUP)
+#endif
+#ifndef WINDOW_MOVE_RIGHT
+#define WINDOW_MOVE_RIGHT() WINDOW_MOVE_MOD(KEY_END)
+#endif
+
+
 enum ModeResult mode_base_colemak(struct InEvent ev) {
 	switch (ev.code) {
 
@@ -289,9 +322,20 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 #f			}
 #f			return HANDLED;
 #> 6T 7T 8T 9T AT BT  >>>  #~#  [   ]  #{# #}# #+#
-#> 6H 7H 8H 9H AH BH  >>>  LTA DNA UPA RTA  =   `
-#> 6B 7B 8B 9B AB     >>>  HOM PDN PUP END  \
+#>             AH BH  >>>                   =   `
+#>             AB     >>>                   \
 #> RT                 >>>  #_#
+
+#F		case L_{<}:  // Focus switching
+#f			if (ev.value == PRESS) {
+#f				{X>}();
+#f			} else {
+#f				pop_mode(mode_extended_sticky);
+#f				EXT_NOTIFY_OFF();
+#f			}
+#f			return HANDLED;
+#> 6H 7H 8H 9H  >>>  WINDOW_FOCUS_LEFT WINDOW_FOCUS_DOWN WINDOW_FOCUS_UP WINDOW_FOCUS_RIGHT
+#> 6B 7B 8B 9B  >>>  WINDOW_MOVE_LEFT WINDOW_MOVE_DOWN WINDOW_MOVE_UP WINDOW_MOVE_RIGHT
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
