@@ -25,7 +25,7 @@ SHORT = {
     'MIC_MUTE': 'F20',  # I have no idea why, but it works in Linux
     'UND': 'UNDO', 'CUT': 'CUT', 'COP': 'COPY', 'PAS': 'PASTE',
     'MUH': 'MUHENKAN', 'HEN': 'HENKAN', 'KAT': 'KATAKANAHIRAGANA',
-    '102': '102ND',
+    '102': '102ND', 'FX': 'F10', 'FY': 'F11', 'FZ': 'F12',
 }
 
 ULTRASHORT = {
@@ -54,7 +54,7 @@ for l in sys.stdin.readlines():
         fmt += l[2:]
     elif l.startswith('#>'):
         from_vals, to_vals = [p.split() for p in l[2:].split(">>>")]
-        assert len(from_vals) == len(to_vals)
+        assert len(from_vals) == len(to_vals), f'{from_vals} vs {to_vals}'
         for from_val, to_val in zip(from_vals, to_vals):
             if from_val.count('#') > 1 or to_val.count('#') > 1:
                 continue
