@@ -25,9 +25,11 @@
               cp ./keyboard-remap-onemix $out/bin/
               cp ./keyboard-remap-tablet $out/bin/
               cp ./keyboard-remap-jap $out/bin/
+              cp ./keyboard-remap-cz $out/bin/
               cp ./keyboard-remap.sh $out/bin/keyboard-remap
               substituteInPlace $out/bin/keyboard-remap \
-                --replace keyboard-remap-onemix $out/bin/keyboard-remap-onemix
+                --replace keyboard-remap-onemix $out/bin/keyboard-remap-onemix \
+                --replace keyboard-remap-cz $out/bin/keyboard-remap-cz
             '';
           };
           devShell = import ./shell.nix { inherit pkgs; };
