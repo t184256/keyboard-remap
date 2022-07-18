@@ -33,6 +33,10 @@ uint16_t combo_codes[COMBO_MAX];
 #define LANGUAGE_EN() do { emit_press(KEY_LEFTCTRL); emit_press(KEY_LEFTMETA); emit_release(KEY_LEFTMETA); emit_release(KEY_LEFTCTRL); } while (0)
 #endif
 
+#ifndef SHIFT_KLUDGE
+#define SHIFT_KLUDGE()
+#endif
+
 #ifndef EXT_NOTIFY_ON
 #define EXT_NOTIFY_ON() do { \
 	emit_press(KEY_RIGHTALT); \
@@ -273,6 +277,7 @@ enum ModeResult mode_extended_temporary(struct InEvent ev) {
 #f				emit_release_all();
 #f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_{>});
+#f				SHIFT_KLUDGE();
 #f				emit_release(KEY_{>});
 #f				emit_release(KEY_LEFTSHIFT);
 #f			}
@@ -357,6 +362,7 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 				pop_mode(mode_extended_sticky);
 				emit_press(KEY_LEFTSHIFT);
 				emit_press(KEY_MINUS);
+				SHIFT_KLUDGE();
 				emit_release(KEY_MINUS);
 				emit_release(KEY_LEFTSHIFT);
 				EXT_NOTIFY_OFF();
@@ -370,6 +376,7 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 #f				emit_release_all();
 #f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_{>});
+#f				SHIFT_KLUDGE();
 #f				emit_release(KEY_{>});
 #f				emit_release(KEY_LEFTSHIFT);
 #f				EXT_NOTIFY_OFF();
