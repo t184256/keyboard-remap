@@ -37,8 +37,17 @@ uint16_t combo_codes[COMBO_MAX];
 #define SHIFT_KLUDGE() usleep(10000)
 #endif
 
+// Used together with Gnome's Focus Switcher for window focus switching
 #ifndef WINDOW_FOCUS_MOD
-#define WINDOW_FOCUS_MOD(x) do { emit_press(x); emit_release(x); } while (0)
+#define WINDOW_FOCUS_MOD(x) do { \
+		emit_press(KEY_LEFTMETA); \
+		emit_press(KEY_LEFTALT); \
+		emit_press(KEY_LEFTCTRL); \
+		emit_press(x); emit_release(x); \
+		emit_release(KEY_LEFTCTRL); \
+		emit_release(KEY_LEFTALT); \
+		emit_release(KEY_LEFTMETA); \
+	} while (0)
 #endif
 #ifndef WINDOW_FOCUS_LEFT
 #define WINDOW_FOCUS_LEFT() WINDOW_FOCUS_MOD(KEY_LEFT)
@@ -52,21 +61,23 @@ uint16_t combo_codes[COMBO_MAX];
 #ifndef WINDOW_FOCUS_RIGHT
 #define WINDOW_FOCUS_RIGHT() WINDOW_FOCUS_MOD(KEY_RIGHT)
 #endif
-
-#ifndef WINDOW_MOVE_MOD
-#define WINDOW_MOVE_MOD(x) do { emit_press(x); emit_release(x); } while (0)
+#ifndef WINDOW_MOVE_MOD(x)
+#define WINDOW_MOVE_MOD(x) do { \
+		emit_press(KEY_LEFTMETA); emit_press(x); \
+		emit_release(x); emit_press(KEY_LEFTMETA); \
+	} while (0)
 #endif
 #ifndef WINDOW_MOVE_LEFT
-#define WINDOW_MOVE_LEFT() WINDOW_MOVE_MOD(KEY_HOME)
+#define WINDOW_MOVE_LEFT() WINDOW_MOVE_MOD(KEY_LEFT)
 #endif
 #ifndef WINDOW_MOVE_DOWN
-#define WINDOW_MOVE_DOWN() WINDOW_MOVE_MOD(KEY_PAGEDOWN)
+#define WINDOW_MOVE_DOWN() WINDOW_MOVE_MOD(KEY_DOWN)
 #endif
 #ifndef WINDOW_MOVE_UP
-#define WINDOW_MOVE_UP() WINDOW_MOVE_MOD(KEY_PAGEUP)
+#define WINDOW_MOVE_UP() WINDOW_MOVE_MOD(KEY_UP)
 #endif
 #ifndef WINDOW_MOVE_RIGHT
-#define WINDOW_MOVE_RIGHT() WINDOW_MOVE_MOD(KEY_END)
+#define WINDOW_MOVE_RIGHT() WINDOW_MOVE_MOD(KEY_RIGHT)
 #endif
 
 

@@ -13,25 +13,6 @@
 #include "source_libevdev.part.c"
 #include "emitter_libevdev.part.c"
 
-// Using Gnome's Focus Switcher for window focus switching
-#define WINDOW_FOCUS_MOD(x) do { \
-		emit_press(KEY_LEFTMETA); \
-		emit_press(KEY_LEFTALT); \
-		emit_press(KEY_LEFTCTRL); \
-		emit_press(x); emit_release(x); \
-		emit_release(KEY_LEFTCTRL); \
-		emit_release(KEY_LEFTALT); \
-		emit_release(KEY_LEFTMETA); \
-	} while (0)
-#define WINDOW_MOVE_MOD(x) do { \
-		emit_press(KEY_LEFTMETA); emit_press(x); \
-		emit_release(x); emit_press(KEY_LEFTMETA); \
-	} while (0)
-#define WINDOW_MOVE_LEFT() WINDOW_MOVE_MOD(KEY_LEFT)
-#define WINDOW_MOVE_DOWN() WINDOW_MOVE_MOD(KEY_DOWN)
-#define WINDOW_MOVE_UP() WINDOW_MOVE_MOD(KEY_UP)
-#define WINDOW_MOVE_RIGHT() WINDOW_MOVE_MOD(KEY_RIGHT)
-
 #include "onemix_keys_to_locations.map.h"
 
 #include "../modes/modes.part.c"
