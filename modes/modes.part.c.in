@@ -34,7 +34,7 @@ uint16_t combo_codes[COMBO_MAX];
 #endif
 
 #ifndef SHIFT_KLUDGE
-#define SHIFT_KLUDGE()
+#define SHIFT_KLUDGE() usleep(10000)
 #endif
 
 #ifndef WINDOW_FOCUS_MOD

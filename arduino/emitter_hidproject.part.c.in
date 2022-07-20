@@ -2,6 +2,7 @@
 // this is the reason why I didn't go for separate compilation
 #include <HID-Project.h>
 
+#define usleep delayMicroseconds
 
 #F#define KEY_{N<} KEY_{N>}
 #> LEFTBRACE RIGHTBRACE  >>>  LEFT_BRACE RIGHT_BRACE
