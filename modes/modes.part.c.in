@@ -61,7 +61,7 @@ uint16_t combo_codes[COMBO_MAX];
 #ifndef WINDOW_FOCUS_RIGHT
 #define WINDOW_FOCUS_RIGHT() WINDOW_FOCUS_MOD(KEY_RIGHT)
 #endif
-#ifndef WINDOW_MOVE_MOD(x)
+#ifndef WINDOW_MOVE_MOD
 #define WINDOW_MOVE_MOD(x) do { \
 		emit_press(KEY_LEFTMETA); emit_press(x); \
 		emit_release(x); emit_press(KEY_LEFTMETA); \
