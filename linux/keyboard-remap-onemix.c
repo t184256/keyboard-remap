@@ -13,9 +13,6 @@
 #include "source_libevdev.part.c"
 #include "emitter_libevdev.part.c"
 
-// Do not indicate mode switches
-#define EXT_NOTIFY_ON()
-#define EXT_NOTIFY_OFF()
 // Using Gnome's Focus Switcher for window focus switching
 #define WINDOW_FOCUS_MOD(x) do { \
 		emit_press(KEY_LEFTMETA); \
