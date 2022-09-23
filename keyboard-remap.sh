@@ -17,4 +17,4 @@ fi
 if [ -e $KBD ] && [ -e $ONENETBOOK4 ]; then remapper=keyboard-remap-onemix; fi
 if [ -e $KBD ] && [ -e $X1_CARBONG9 ]; then remapper=keyboard-remap-cz; fi
 
-[ -z "$remapper" ] && exec $remapper || exit 1
+[ -n "$remapper" ] && exec $remapper || exit 1
