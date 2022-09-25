@@ -11,7 +11,7 @@
         rec {
           defaultPackage = pkgs.stdenv.mkDerivation {
             name = "keyboard-remap";
-            nativeBuildInputs = with pkgs; [ python3 libevdev pkgconfig ];
+            nativeBuildInputs = with pkgs; [ python3 libevdev pkg-config ];
             prapagatedBuildInputs = with pkgs; [ libevdev ];
             src = ./.;
             patchPhase = ''

@@ -4,7 +4,7 @@ pkgs.mkShell {
     gcc
     gnumake
     libevdev
-    pkgconfig
+    pkg-config
     python3
   ];
   propagatedBuildInputs = with pkgs; [
