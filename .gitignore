@@ -10,3 +10,4 @@ linux/onemix_keys_to_locations.map.h
 linux/tablet_keys_to_locations.map.h
 modes/modes.part.c
 old/
+result
