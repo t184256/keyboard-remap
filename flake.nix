@@ -15,10 +15,7 @@
             prapagatedBuildInputs = with pkgs; [ libevdev ];
             src = ./.;
             patchPhase = ''
-              patchShebangs ./preprocessor.py
-            '';
-            compilePhase = ''
-              make
+              patchShebangs ./preprocessor.py langs/genunicode.py
             '';
             installPhase = ''
               mkdir -p $out/bin

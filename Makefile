@@ -3,6 +3,7 @@ LDFLAGS=$(shell pkg-config --libs libevdev)
 CFLAGS+=-O2
 
 COMMON_DEPS=core/modes.part.c modes/modes.part.c
+COMMON_DEPS+=langs/unicode.part.c langs/cz.h langs/ru.h
 LINUX_ONLY_DEPS=linux/source_libevdev.part.c linux/emitter_libevdev.part.c
 LINUX_DEPS=$(LINUX_ONLY_DEPS) $(COMMON_DEPS)
 ARDUINO_DEPS=arduino/emitter_hidproject.part.c
@@ -21,8 +22,8 @@ all: \
 %.h: %.h.in preprocessor.py
 	./preprocessor.py < $^ > $@
 
-keyboard-remap-cz: linux/keyboard-remap-cz.c linux/source_libevdev.part.c linux/emitter_libevdev.part.c modes/modes.part.c linux/cz_keys_to_locations.map.h
-	${CC} $< -o $@ ${CFLAGS} ${LDFLAGS}
+langs/%.h: langs/%.chars langs/genunicode.py
+	./langs/genunicode.py < $^ > $@
 
 keyboard-remap-%: $(LINUX_DEPS)
 keyboard-remap-%: linux/keyboard-remap-%.c linux/%_keys_to_locations.map.h

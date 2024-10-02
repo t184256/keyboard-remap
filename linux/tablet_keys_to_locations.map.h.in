@@ -8,7 +8,6 @@
 #>    ## ## ## ##      SPACE    RWI [  ]  '  LTA DNA RTA >>>     ## ## ## ##         LT     RT  ## ## ## ## ## ##
 
 #define PASSTHROUGH_KEY(k) (k == KEY_MUTE || k == KEY_VOLUMEDOWN || k == KEY_VOLUMEUP)
-#define LANGUAGE_TOGGLE() do { emit_press(KEY_LEFTCTRL); emit_press(KEY_SPACE); emit_release(KEY_SPACE); emit_release(KEY_LEFTCTRL); usleep(200000); } while (0)
 
 /*
 # Rapoo E6300

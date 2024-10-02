@@ -1,4 +1,7 @@
 #include "../core/source_event.h"
+#include "../langs/unicode.part.c"
+#include "../langs/ru.h"
+#include "../langs/cz.h"
 
 #include <math.h>
 
@@ -10,7 +13,6 @@
 #define EXPIRATION_MS 300
 
 enum ModeResult mode_base_colemak(struct InEvent ev);
-enum ModeResult mode_russian(struct InEvent ev);
 enum ModeResult mode_spaceshifted_primed(struct InEvent ev);
 enum ModeResult mode_spaceshifted_defused(struct InEvent ev);
 enum ModeResult mode_controlesque_primed(struct InEvent ev);
@@ -19,19 +21,15 @@ enum ModeResult mode_extended_undecided(struct InEvent ev);
 enum ModeResult mode_extended_temporary(struct InEvent ev);
 enum ModeResult mode_extended_sticky(struct InEvent ev);
 enum ModeResult mode_combo(struct InEvent ev);
+enum ModeResult mode_russian(struct InEvent ev);
+enum ModeResult mode_russian_spaceshifted_primed(struct InEvent ev);
+enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev);
 
 unsigned long spaceshifted_time, controlesque_time;
 
 #define COMBO_MAX 3
 int combo_i;
 uint16_t combo_codes[COMBO_MAX];
-
-#ifndef LANGUAGE_RU
-#define LANGUAGE_RU() do { emit_press(KEY_RIGHTCTRL); emit_press(KEY_COMPOSE); emit_release(KEY_COMPOSE); emit_release(KEY_RIGHTCTRL); } while (0)
-#endif
-#ifndef LANGUAGE_EN
-#define LANGUAGE_EN() do { emit_press(KEY_LEFTCTRL); emit_press(KEY_LEFTMETA); emit_release(KEY_LEFTMETA); emit_release(KEY_LEFTCTRL); } while (0)
-#endif
 
 #ifndef SHIFT_KLUDGE
 #define SHIFT_KLUDGE() usleep(10000)
@@ -388,16 +386,10 @@ enum ModeResult mode_combo(struct InEvent ev) {
 				// Double-tap on combo button == layout switch!
 				pop_mode(mode_combo);
 				if (peek_mode() == mode_base_colemak) {
-#ifdef LANGUAGE_TOGGLE
-					LANGUAGE_TOGGLE();
-#endif
 					push_mode(mode_russian);
 					emit_release_all();
 					return HANDLED;
 				} else if (peek_mode() == mode_russian) {
-#ifdef LANGUAGE_TOGGLE
-					LANGUAGE_TOGGLE();
-#endif
 					pop_mode(mode_russian);
 					emit_release_all();
 					return HANDLED;
@@ -523,36 +515,126 @@ enum ModeResult mode_combo(struct InEvent ev) {
 
 
 enum ModeResult mode_russian(struct InEvent ev) {
-#F#define RUS_{>} KEY_{X<}
-#> ` 1 2 3 4 5 6 7 8 9 0      >>> YO  1   2   3   4   5   6   7   8   9   0
-#>   Q W E R T Y U I O P [ ]  >>>     J   C   U   K   E   N   G  SH  SCH  Z   H  HAR
-#>   A S D F G H J K L ; '    >>>     F   Y   V   A   P   R   O   L   D  ZH  EE
-#>   Z X C V B N M , . /      >>>    YA  CH   S   M   I   T  SOF  B  YU  DOT
-
 	switch (ev.code) {
+		case L_RT:
+			if (ev.value == PRESS) {
+				push_mode(mode_russian_spaceshifted_primed);
+				spaceshifted_time = ev.time;
+			} else {
+				emit_release_all();
+			}
+			return HANDLED;
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f#ifndef LANGUAGE_TOGGLE
-#f				LANGUAGE_RU();
-#f#endif
-#f				emit_press(RUS_{>});
+#f				emit_unicode_lower_ru_{>}();
+#f			} else if (ev.value == RELEASE) { }
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>      ##  ##  ##  ##  ##     ##  ##  ##  ##  ##
+#> 0T 1T 2T 3T 4T 5T  6T 7T 8T 9T AT BT  >>>   Yo  J   C   U   K  Ye     N   G   Sh Sch  Z  H
+#> 0H 1H 2H 3H 4H 5H  6H 7H 8H 9H AH BH  >>>  Har  F  Yi   V   A   P     R   O   L   D   Zh E
+#>    1B 2B 3B 4B 5B  6B 7B 8B 9B AB BB  >>>      Ya  Ch   S   M   I     T  Sof  B   Yu  ## ##
+#>                LT  RT                 >>>                      ###   ###
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_press(KEY_{X>});
 #f			} else if (ev.value == RELEASE) {
-#f				emit_release(RUS_{>});
-#f#ifndef LANGUAGE_TOGGLE
-#f				LANGUAGE_EN();
-#f#endif
+#f				emit_release(KEY_{X>});
 #f			}
 #f			return HANDLED;
 #>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0
-#> 0T 1T 2T 3T 4T 5T  6T 7T 8T 9T AT BT  >>>   YO  J   C   U   K   E     N   G   SH SCH  Z  H
-#> 0H 1H 2H 3H 4H 5H  6H 7H 8H 9H AH BH  >>>  HAR  F   Y   V   A   P     R   O   L   D   ZH EE
-#>    1B 2B 3B 4B 5B  6B 7B 8B 9B AB BB  >>>      YA  CH   S   M   I     T  SOF  B   YU  .  ##
+#> 0T 1T 2T 3T 4T 5T  6T 7T 8T 9T AT BT  >>>   ## ##  ##  ##  ##  ##     ##  ##  ##  ##  ## ##
+#> 0H 1H 2H 3H 4H 5H  6H 7H 8H 9H AH BH  >>>   ## ##  ##  ##  ##  ##     ##  ##  ##  ##  ## ##
+#>    1B 2B 3B 4B 5B  6B 7B 8B 9B AB BB  >>>      ##  ##  ##  ##  ##     ##  ##  ##  ##  .  ##
 #>                LT  RT                 >>>                      ###   ###
 
 		// TODO: find a place for -
-		// TODO: separate extended for russian?
-		// TODO: separate controlesque for russian?
+		// TODO: separate shifted for russian
+		default: return PASSTHROUGH;
+	}
+}
+
+enum ModeResult mode_russian_spaceshifted_primed(struct InEvent ev) {
+	if (ev.code == L_LT) {
+		if (ev.value == RELEASE) {
+			emit_release_all();
+			pop_mode(mode_russian_spaceshifted_primed);
+		}
+		return HANDLED;
+	}
+	if (ev.code != L_RT || fabs(ev.time - spaceshifted_time) > EXPIRATION_MS) {
+		swap_mode(mode_russian_spaceshifted_primed,
+			  mode_russian_spaceshifted_defused);
+		return mode_russian_spaceshifted_defused(ev);
+	}
+	if (ev.code == L_RT && ev.value == RELEASE) {
+		pop_mode(mode_russian_spaceshifted_primed);
+		emit_press(KEY_SPACE);
+		emit_release_all();
+		return HANDLED;
+	}
+	return HANDLED;
+}
+
+enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev) {
+	switch (ev.code) {
+		case L_LT:
+			emit_key(KEY_BACKSPACE, ev.value);
+			return HANDLED;
+
+		case L_RT:
+			if (ev.value == RELEASE) {
+				emit_release_all();
+				pop_mode(mode_russian_spaceshifted_defused);
+			}
+			return HANDLED;
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_unicode_upper_ru_{>}();
+#f			} else if (ev.value == RELEASE) { }
+#f			return HANDLED;
+#> 0T 1T 2T 3T 4T 5T  6T 7T 8T 9T AT BT  >>>   Yo  J   C   U   K  Ye     N   G   Sh Sch  Z  H
+#> 0H 1H 2H 3H 4H 5H  6H 7H 8H 9H AH BH  >>>  Har  F  Yi   V   A   P     R   O   L   D   Zh E
+#>    1B 2B 3B 4B 5B  6B 7B 8B 9B AB BB  >>>      Ya  Ch   S   M   I     T  Sof  B   Yu  ## ##
+
+		case L_AB:  // comma
+			if (ev.value == PRESS) {
+				emit_press(KEY_COMMA);
+			} else if (ev.value == RELEASE) {
+				emit_release(KEY_COMMA);
+			}
+			return HANDLED;
+
+		case L_3N:  // No number sign
+			if (ev.value == PRESS) {
+				emit_unicode_ru_No();
+			} else if (ev.value == RELEASE) { }
+			return HANDLED;
+
+		case L_4N:  // semicolon
+			if (ev.value == PRESS) {
+				emit_press(KEY_SEMICOLON);
+			} else if (ev.value == RELEASE) {
+				emit_release(KEY_SEMICOLON);
+			}
+			return HANDLED;
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_press(KEY_RIGHTSHIFT);
+#f				emit_press(KEY_{X>});
+#f			} else if (ev.value == RELEASE) {
+#f				emit_release(KEY_{X>});
+#f				emit_release(KEY_RIGHTSHIFT);
+#f			}
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>       1   '  ##  ##   5      ;   /  8   9   0
+//                                                 !   "  ##  ##   %      :   ?  *   (   )
+
+		// TODO: find a place for -
+		// TODO: separate shifted for russian
 		default: return PASSTHROUGH;
 	}
 }
