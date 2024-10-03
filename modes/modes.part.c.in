@@ -514,6 +514,11 @@ enum ModeResult mode_combo(struct InEvent ev) {
 }
 
 
+#define ru_ambiguity_marker() \
+	do { \
+		emit_press(KEY_INSERT); emit_release(KEY_INSERT); \
+		emit_press(KEY_INSERT); emit_release(KEY_INSERT); \
+	} while (0)
 enum ModeResult mode_russian(struct InEvent ev) {
 	switch (ev.code) {
 		case L_RT:
@@ -527,10 +532,7 @@ enum ModeResult mode_russian(struct InEvent ev) {
 
 		case L_AB:  // dot
 			if (ev.value == PRESS) {
-				emit_press(KEY_INSERT);
-				emit_release(KEY_INSERT);
-				emit_press(KEY_INSERT);
-				emit_release(KEY_INSERT);
+				ru_ambiguity_marker();
 				emit_press(KEY_DOT);
 				emit_release(KEY_DOT);
 			} else if (ev.value == RELEASE) {
@@ -558,19 +560,13 @@ enum ModeResult mode_russian(struct InEvent ev) {
 #>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0
 
 		// TODO: find a place for -
+		// TODO: find a place for Yo, Har
 		// TODO: separate shifted for russian
-		default: return PASSTHROUGH;
+		default: return HANDLED;
 	}
 }
 
 enum ModeResult mode_russian_spaceshifted_primed(struct InEvent ev) {
-	if (ev.code == L_LT) {
-		if (ev.value == RELEASE) {
-			emit_release_all();
-			pop_mode(mode_russian_spaceshifted_primed);
-		}
-		return HANDLED;
-	}
 	if (ev.code != L_RT || fabs(ev.time - spaceshifted_time) > EXPIRATION_MS) {
 		swap_mode(mode_russian_spaceshifted_primed,
 			  mode_russian_spaceshifted_defused);
@@ -609,10 +605,7 @@ enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev) {
 
 		case L_AB:  // comma
 			if (ev.value == PRESS) {
-				emit_press(KEY_INSERT);
-				emit_release(KEY_INSERT);
-				emit_press(KEY_INSERT);
-				emit_release(KEY_INSERT);
+				ru_ambiguity_marker();
 				emit_press(KEY_COMMA);
 				emit_release(KEY_COMMA);
 			} else if (ev.value == RELEASE) {
@@ -627,10 +620,7 @@ enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev) {
 
 		case L_4N:  // semicolon
 			if (ev.value == PRESS) {
-				emit_press(KEY_INSERT);
-				emit_release(KEY_INSERT);
-				emit_press(KEY_INSERT);
-				emit_release(KEY_INSERT);
+				ru_ambiguity_marker();
 				emit_press(KEY_SEMICOLON);
 				emit_release(KEY_SEMICOLON);
 			} else if (ev.value == RELEASE) {
@@ -639,10 +629,7 @@ enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_INSERT);
-#f				emit_release(KEY_INSERT);
-#f				emit_press(KEY_INSERT);
-#f				emit_release(KEY_INSERT);
+#f				ru_ambiguity_marker();
 #f				emit_press(KEY_RIGHTSHIFT);
 #f				emit_press(KEY_{X>});
 #f				emit_release(KEY_{X>});
