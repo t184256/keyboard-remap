@@ -7,11 +7,11 @@
 		emit_release(KEY_LEFTCTRL); \
 		emit_press(KEY_LEFTALT); \
 		emit_release(KEY_LEFTALT); \
-		usleep(2000); \
+		usleep(5000); \
 		emit_press(KEY_ ## k1); emit_release(KEY_ ## k1); \
 		emit_press(KEY_ ## k2); emit_release(KEY_ ## k2); \
 		emit_press(KEY_ ## k3); emit_release(KEY_ ## k3); \
 		emit_press(KEY_ ## k4); emit_release(KEY_ ## k4); \
 		emit_press(KEY_KPENTER); emit_release(KEY_KPENTER); \
-		usleep(10000); \
+		usleep(20000); \
 	} while(0)
