@@ -241,11 +241,11 @@ enum ModeResult mode_extended_temporary(struct InEvent ev) {
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
 #f				emit_release_all();
-#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_LEFTCTRL);
 #f				emit_press(KEY_{>});
 #f				SHIFT_KLUDGE();
 #f				emit_release(KEY_{>});
-#f				emit_release(KEY_LEFTSHIFT);
+#f				emit_release(KEY_LEFTCTRL);
 #f			}
 #f			return HANDLED;
 #> 6B 9B  >>>  LEFT RIGHT
@@ -773,11 +773,11 @@ enum ModeResult mode_ru_extended_temporary(struct InEvent ev) {
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
 #f				emit_release_all();
-#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_LEFTCTRL);
 #f				emit_press(KEY_{>});
 #f				SHIFT_KLUDGE();
 #f				emit_release(KEY_{>});
-#f				emit_release(KEY_LEFTSHIFT);
+#f				emit_release(KEY_LEFTCTRL);
 #f			}
 #f			return HANDLED;
 #> 6B 9B  >>>  LEFT RIGHT
