@@ -8,6 +8,8 @@ linux/cz_keys_to_locations.map.h
 linux/jap_keys_to_locations.map.h
 linux/onemix_keys_to_locations.map.h
 linux/tablet_keys_to_locations.map.h
+langs/cz.h
+langs/ru.h
 modes/modes.part.c
 old/
 result
