@@ -45,50 +45,6 @@ uint16_t combo_codes[COMBO_MAX];
 #define SHIFT_KLUDGE() usleep(10000)
 #endif
 
-// Used together with Gnome's Focus Switcher for window focus switching
-#ifndef WINDOW_FOCUS_MOD
-#define WINDOW_FOCUS_MOD(x) do { \
-		emit_press(KEY_LEFTMETA); \
-		emit_press(KEY_LEFTALT); \
-		emit_press(KEY_LEFTCTRL); \
-		emit_press(x); emit_release(x); \
-		emit_release(KEY_LEFTCTRL); \
-		emit_release(KEY_LEFTALT); \
-		emit_release(KEY_LEFTMETA); \
-	} while (0)
-#endif
-#ifndef WINDOW_FOCUS_LEFT
-#define WINDOW_FOCUS_LEFT() WINDOW_FOCUS_MOD(KEY_LEFT)
-#endif
-#ifndef WINDOW_FOCUS_DOWN
-#define WINDOW_FOCUS_DOWN() WINDOW_FOCUS_MOD(KEY_DOWN)
-#endif
-#ifndef WINDOW_FOCUS_UP
-#define WINDOW_FOCUS_UP() WINDOW_FOCUS_MOD(KEY_UP)
-#endif
-#ifndef WINDOW_FOCUS_RIGHT
-#define WINDOW_FOCUS_RIGHT() WINDOW_FOCUS_MOD(KEY_RIGHT)
-#endif
-#ifndef WINDOW_MOVE_MOD
-#define WINDOW_MOVE_MOD(x) do { \
-		emit_press(KEY_LEFTMETA); emit_press(x); \
-		emit_release(x); emit_press(KEY_LEFTMETA); \
-	} while (0)
-#endif
-#ifndef WINDOW_MOVE_LEFT
-#define WINDOW_MOVE_LEFT() WINDOW_MOVE_MOD(KEY_LEFT)
-#endif
-#ifndef WINDOW_MOVE_DOWN
-#define WINDOW_MOVE_DOWN() WINDOW_MOVE_MOD(KEY_DOWN)
-#endif
-#ifndef WINDOW_MOVE_UP
-#define WINDOW_MOVE_UP() WINDOW_MOVE_MOD(KEY_UP)
-#endif
-#ifndef WINDOW_MOVE_RIGHT
-#define WINDOW_MOVE_RIGHT() WINDOW_MOVE_MOD(KEY_RIGHT)
-#endif
-
-
 enum ModeResult mode_base_colemak(struct InEvent ev) {
 	switch (ev.code) {
 
@@ -339,16 +295,6 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 #> 6H       9H AH BH  >>>  HOM         END  =   `
 #>             AB     >>>                   \
 #> RT                 >>>  #_#
-
-#F		case L_{<}:  // Focus switching
-#f			if (ev.value == PRESS) {
-#f				{X>}();
-#f			} else {
-#f				pop_mode(mode_extended_sticky);
-#f			}
-#f			return HANDLED;
-#>    7H 8H     >>>  WINDOW_FOCUS_DOWN WINDOW_FOCUS_UP
-#> 6B 7B 8B 9B  >>>  WINDOW_MOVE_LEFT WINDOW_MOVE_DOWN WINDOW_MOVE_UP WINDOW_MOVE_RIGHT
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
@@ -881,16 +827,6 @@ enum ModeResult mode_ru_extended_sticky(struct InEvent ev) {
 #> 6H       9H AH BH  >>>  HOM         END  =   /
 #>             AB     >>>                   \
 #> RT                 >>>  #_#
-
-#F		case L_{<}:  // Focus switching
-#f			if (ev.value == PRESS) {
-#f				{X>}();
-#f			} else {
-#f				pop_mode(mode_ru_extended_sticky);
-#f			}
-#f			return HANDLED;
-#>    7H 8H     >>>  WINDOW_FOCUS_DOWN WINDOW_FOCUS_UP
-#> 6B 7B 8B 9B  >>>  WINDOW_MOVE_LEFT WINDOW_MOVE_DOWN WINDOW_MOVE_UP WINDOW_MOVE_RIGHT
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
