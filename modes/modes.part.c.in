@@ -20,12 +20,22 @@ enum ModeResult mode_controlesque_defused(struct InEvent ev);
 enum ModeResult mode_extended_undecided(struct InEvent ev);
 enum ModeResult mode_extended_temporary(struct InEvent ev);
 enum ModeResult mode_extended_sticky(struct InEvent ev);
-enum ModeResult mode_combo(struct InEvent ev);
-enum ModeResult mode_russian(struct InEvent ev);
-enum ModeResult mode_russian_spaceshifted_primed(struct InEvent ev);
-enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev);
+enum ModeResult mode_lang_undecided(struct InEvent ev);
 
-unsigned long spaceshifted_time, controlesque_time;
+enum ModeResult mode_cz(struct InEvent ev);
+enum ModeResult mode_cz_shifted(struct InEvent ev);
+
+enum ModeResult mode_combo(struct InEvent ev);
+
+enum ModeResult mode_ru(struct InEvent ev);
+enum ModeResult mode_ru_spaceshifted_primed(struct InEvent ev);
+enum ModeResult mode_ru_spaceshifted_defused(struct InEvent ev);
+enum ModeResult mode_ru_extended_undecided(struct InEvent ev);
+enum ModeResult mode_ru_extended_temporary(struct InEvent ev);
+enum ModeResult mode_ru_extended_sticky(struct InEvent ev);
+enum ModeResult mode_ru_lang_undecided(struct InEvent ev);
+
+unsigned long spaceshifted_time = 0, controlesque_time = 0, extended_time = 0;
 
 #define COMBO_MAX 3
 int combo_i;
@@ -94,6 +104,7 @@ enum ModeResult mode_base_colemak(struct InEvent ev) {
 		case L_LT:
 			if (ev.value == PRESS) {
 				push_mode(mode_extended_undecided);
+				extended_time = ev.time;
 			} else {
 				emit_release_all();
 			}
@@ -227,7 +238,7 @@ enum ModeResult mode_extended_temporary(struct InEvent ev) {
 #>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>      #1# #2# #3# #4# #5#   #6# #7# #8# #9# #0#
 #> 0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  #Y# #Q# #W# #F# #P# #G#   #~#  [   ]  #{# #}# #+#
 #> 0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  #X# #A# #R# #S# #T# #D#   LTA DNA UPA RTA  =   `
-#>    1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>      UND COP CUT PAS DEL   HOM PDN PUP END  \
+#>    1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>      UND COP CUT PAS DEL   ### PDN PUP ###  \
 #>                LT   RT                 >>>                      ###   #_#
 
 #F		case L_{<}:
@@ -271,6 +282,18 @@ enum ModeResult mode_extended_temporary(struct InEvent ev) {
 #f			return HANDLED;
 #> 6T 9T AT BT  >>>  GRAVE LEFTBRACE RIGHTBRACE EQUAL
 
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_release_all();
+#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_{>});
+#f				SHIFT_KLUDGE();
+#f				emit_release(KEY_{>});
+#f				emit_release(KEY_LEFTSHIFT);
+#f			}
+#f			return HANDLED;
+#> 6B 9B  >>>  LEFT RIGHT
+
 		default: return PASSTHROUGH;
 	}
 }
@@ -300,7 +323,8 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 
 		case L_LT:
 			if (ev.value == PRESS) {
-				pop_mode(mode_extended_sticky);
+				swap_mode(mode_extended_sticky,
+				          mode_lang_undecided);
 				emit_release_all();
 			} // else ignore
 			return HANDLED;
@@ -312,7 +336,7 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 #f			}
 #f			return HANDLED;
 #> 6T 7T 8T 9T AT BT  >>>  #~#  [   ]  #{# #}# #+#
-#>             AH BH  >>>                   =   `
+#> 6H       9H AH BH  >>>  HOM         END  =   `
 #>             AB     >>>                   \
 #> RT                 >>>  #_#
 
@@ -323,7 +347,7 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 #f				pop_mode(mode_extended_sticky);
 #f			}
 #f			return HANDLED;
-#> 6H 7H 8H 9H  >>>  WINDOW_FOCUS_LEFT WINDOW_FOCUS_DOWN WINDOW_FOCUS_UP WINDOW_FOCUS_RIGHT
+#>    7H 8H     >>>  WINDOW_FOCUS_DOWN WINDOW_FOCUS_UP
 #> 6B 7B 8B 9B  >>>  WINDOW_MOVE_LEFT WINDOW_MOVE_DOWN WINDOW_MOVE_UP WINDOW_MOVE_RIGHT
 
 #F		case L_{<}:
@@ -369,6 +393,83 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 	}
 }
 
+enum ModeResult mode_lang_undecided(struct InEvent ev) {
+	if (ev.code == L_LT && ev.value == PRESS)  // REPEAT
+		return HANDLED;
+	if (ev.code == L_LT && ev.value == RELEASE) {
+		int too_late = fabs(ev.time - extended_time) > EXPIRATION_MS;
+		extended_time = 0;
+		pop_mode(mode_lang_undecided);
+		if (!too_late)
+			swap_mode(mode_base_colemak, mode_ru);
+		emit_release_all();
+		return HANDLED;
+	}
+	pop_mode(mode_lang_undecided);
+	swap_mode(mode_base_colemak, mode_cz);
+	return mode_cz(ev);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+enum ModeResult mode_cz(struct InEvent ev) {
+	switch (ev.code) {
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_unicode_lower_cz_{>}();
+#f			} else if (ev.value == RELEASE) { }
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>      ##  ##  ##  ##  ##     ##  ##  Uk  ##  ##
+#> 0T 1T 2T 3T 4T 5T  6T 7T 8T 9T AT BT  >>>   ## ##  ##  ##  ##  ##     ##  Uk  Uc  Yc  ## ##
+#> 0H 1H 2H 3H 4H 5H  6H 7H 8H 9H AH BH  >>>   ## Ac  Rh  Sh  Th  Dh     ##  Nh  Ec  Ic  Oc ##
+#>    1B 2B 3B 4B 5B  6B 7B 8B 9B AB BB  >>>      Zh  ##  Ch  ##  ##     ##  ##  Eh  ##  ## ##
+#>                LT  RT                 >>>                      ###   ###
+
+		case L_RT:
+			if (ev.value == PRESS) {
+				push_mode(mode_cz_shifted);
+			}
+			return HANDLED;
+
+		default:
+			swap_mode(mode_cz, mode_base_colemak);
+			return HANDLED;
+	}
+}
+
+
+enum ModeResult mode_cz_shifted(struct InEvent ev) {
+	switch (ev.code) {
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_unicode_upper_cz_{>}();
+#f			} else if (ev.value == RELEASE) { }
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N  6N 7N 8N 9N AN     >>>      ##  ##  ##  ##  ##     ##  ##  Uk  ##  ##
+#> 0T 1T 2T 3T 4T 5T  6T 7T 8T 9T AT BT  >>>   ## ##  ##  ##  ##  ##     ##  Uk  Uc  Yc  ## ##
+#> 0H 1H 2H 3H 4H 5H  6H 7H 8H 9H AH BH  >>>   ## Ac  Rh  Sh  Th  Dh     ##  Nh  Ec  Ic  Oc ##
+#>    1B 2B 3B 4B 5B  6B 7B 8B 9B AB BB  >>>      Zh  ##  Ch  ##  ##     ##  ##  Eh  ##  ## ##
+#>                LT  RT                 >>>                      ###   ###
+
+		case L_RT:
+			if (ev.value == RELEASE) {
+				emit_release_all();
+				pop_mode(mode_cz_shifted);
+			}
+			return HANDLED;
+
+		default:
+			pop_mode(mode_cz_shifted);
+			swap_mode(mode_cz, mode_base_colemak);
+			return HANDLED;
+	}
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 enum ModeResult mode_combo(struct InEvent ev) {
 #F#define LETTER_{>} L_{<}
@@ -386,11 +487,13 @@ enum ModeResult mode_combo(struct InEvent ev) {
 				// Double-tap on combo button == layout switch!
 				pop_mode(mode_combo);
 				if (peek_mode() == mode_base_colemak) {
-					push_mode(mode_russian);
+					pop_mode(mode_base_colemak);
+					push_mode(mode_ru);
 					emit_release_all();
 					return HANDLED;
-				} else if (peek_mode() == mode_russian) {
-					pop_mode(mode_russian);
+				} else if (peek_mode() == mode_ru) {
+					pop_mode(mode_ru);
+					push_mode(mode_base_colemak);
 					emit_release_all();
 					return HANDLED;
 				} else {
@@ -482,7 +585,7 @@ enum ModeResult mode_combo(struct InEvent ev) {
 #> combo_i==2&&c0==LETTER_V&&c1==LETTER_U  >>>  VOLUMEUP	/// V+U == VOLUMEUP
 #> combo_i==2&&c0==LETTER_V&&c1==LETTER_D  >>>  VOLUMEDOWN	/// V+D == VOLUMEDOWN
 #> combo_i==2&&c0==LETTER_M&&c1==LETTER_M  >>>  MIC_MUTE	/// M+M == MIC_MUTE
-#> combo_i==2&&c0==LETTER_M&&c1==LETTER_I  >>>  MINUS		/// M+I == MINUS (currently not in RU)
+#> combo_i==2&&c0==LETTER_M&&c1==LETTER_I  >>>  MINUS		/// M+I == MINUS
 #> combo_i==3&&c0==LETTER_B&&c1==LETTER_S&&c2==LETTER_P  >>>  BACKSPACE  /// B+S+P == BACKSPACE
 #> combo_i==3&&c0==LETTER_B&&c1==LETTER_S&&c2==LETTER_L  >>>  BACKSLASH  /// B+S+L == BACKSLASH
 // TODO: S+Y == ALT+PRINTSCREEN (SYSRQ)
@@ -514,16 +617,28 @@ enum ModeResult mode_combo(struct InEvent ev) {
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+
+
 #define ru_ambiguity_marker() \
 	do { \
 		emit_press(KEY_INSERT); emit_release(KEY_INSERT); \
 		emit_press(KEY_INSERT); emit_release(KEY_INSERT); \
 	} while (0)
-enum ModeResult mode_russian(struct InEvent ev) {
+enum ModeResult mode_ru(struct InEvent ev) {
 	switch (ev.code) {
+		case L_LT:
+			if (ev.value == PRESS) {
+				push_mode(mode_ru_extended_undecided);
+				extended_time = ev.time;
+			} else {
+				emit_release_all();
+			}
+			return HANDLED;
+
 		case L_RT:
 			if (ev.value == PRESS) {
-				push_mode(mode_russian_spaceshifted_primed);
+				push_mode(mode_ru_spaceshifted_primed);
 				spaceshifted_time = ev.time;
 			} else {
 				emit_release_all();
@@ -566,14 +681,14 @@ enum ModeResult mode_russian(struct InEvent ev) {
 	}
 }
 
-enum ModeResult mode_russian_spaceshifted_primed(struct InEvent ev) {
+enum ModeResult mode_ru_spaceshifted_primed(struct InEvent ev) {
 	if (ev.code != L_RT || fabs(ev.time - spaceshifted_time) > EXPIRATION_MS) {
-		swap_mode(mode_russian_spaceshifted_primed,
-			  mode_russian_spaceshifted_defused);
-		return mode_russian_spaceshifted_defused(ev);
+		swap_mode(mode_ru_spaceshifted_primed,
+			  mode_ru_spaceshifted_defused);
+		return mode_ru_spaceshifted_defused(ev);
 	}
 	if (ev.code == L_RT && ev.value == RELEASE) {
-		pop_mode(mode_russian_spaceshifted_primed);
+		pop_mode(mode_ru_spaceshifted_primed);
 		emit_press(KEY_SPACE);
 		emit_release_all();
 		return HANDLED;
@@ -581,7 +696,7 @@ enum ModeResult mode_russian_spaceshifted_primed(struct InEvent ev) {
 	return HANDLED;
 }
 
-enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev) {
+enum ModeResult mode_ru_spaceshifted_defused(struct InEvent ev) {
 	switch (ev.code) {
 		case L_LT:
 			emit_key(KEY_BACKSPACE, ev.value);
@@ -590,7 +705,7 @@ enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev) {
 		case L_RT:
 			if (ev.value == RELEASE) {
 				emit_release_all();
-				pop_mode(mode_russian_spaceshifted_defused);
+				pop_mode(mode_ru_spaceshifted_defused);
 			}
 			return HANDLED;
 
@@ -644,4 +759,194 @@ enum ModeResult mode_russian_spaceshifted_defused(struct InEvent ev) {
 		// TODO: separate shifted for russian
 		default: return PASSTHROUGH;
 	}
+}
+
+enum ModeResult mode_ru_extended_undecided(struct InEvent ev) {
+	if (ev.code == L_LT && ev.value == PRESS)  // REPEAT
+		return HANDLED;
+	if (ev.code == L_LT && ev.value == RELEASE) {
+		swap_mode(mode_ru_extended_undecided, mode_ru_extended_sticky);
+		return HANDLED;
+	}
+	swap_mode(mode_ru_extended_undecided, mode_ru_extended_temporary);
+	return mode_ru_extended_temporary(ev);
+}
+
+enum ModeResult mode_ru_extended_temporary(struct InEvent ev) {
+	switch (ev.code) {
+#F		case L_{<}:
+#f			emit_key(KEY_{X>}, ev.value);
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>      #1# #2# #3# #4# #5#   #6# #7# #8# #9# #0#
+#> 0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>  #Y# #Q# #W# #F# #P# #G#   #~#  [   ]  #{# #}# #+#
+#> 0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>  #X# #A# #R# #S# #T# #D#   LTA DNA UPA RTA  =   `
+#>    1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>      UND COP CUT PAS DEL   ### PDN PUP ###  \
+#>                LT   RT                 >>>                      ###   #_#
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTALT);
+#f				emit_press(KEY_{X>});
+#f				return HANDLED;
+#f			} else if (ev.value == RELEASE) {
+#f				emit_release(KEY_{X>});
+#f				emit_release(KEY_LEFTALT);
+#f				emit_release(KEY_LEFTMETA);
+#f				return HANDLED;
+#f			}
+#>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0
+#> 0T 1T 2T 3T 4T 5T   6T 7T 8T 9T AT BT  >>>   Y   Q   W   F   P   G    #~# #[# #]# #{# #}# #+#
+#> 0H 1H 2H 3H 4H 5H   6H 7H 8H 9H AH BH  >>>   X   A   R   S   T   D    ### ### ### ### #=# #`#
+#>    1B 2B 3B 4B 5B   6B 7B 8B 9B AB     >>>      ### ### ### ### ###   ### ### ### ### #\#
+#>                LT   RT                 >>>                      ###   #_#
+
+		case L_LT:
+			if (ev.value == RELEASE) {
+				pop_mode(mode_ru_extended_temporary);
+				emit_release_all();
+			} // else ignore
+			return HANDLED;
+
+		case L_RT:
+			emit_key(KEY_ENTER, ev.value);
+			return HANDLED;
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {  // Enter shifted char and leave the mode
+#f				emit_release_all();
+#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_{>});
+#f				SHIFT_KLUDGE();
+#f				emit_release(KEY_{>});
+#f				emit_release(KEY_LEFTSHIFT);
+#f			}
+#f			return HANDLED;
+#> 6T 9T AT BT  >>>  GRAVE LEFTBRACE RIGHTBRACE EQUAL
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_release_all();
+#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_{>});
+#f				SHIFT_KLUDGE();
+#f				emit_release(KEY_{>});
+#f				emit_release(KEY_LEFTSHIFT);
+#f			}
+#f			return HANDLED;
+#> 6B 9B  >>>  LEFT RIGHT
+
+		default: return PASSTHROUGH;
+	}
+}
+
+enum ModeResult mode_ru_extended_sticky(struct InEvent ev) {
+	switch (ev.code) {
+#F		case L_{<}:  // Left hand actions keep the extended mode
+#f			emit_key(KEY_{X>}, ev.value);
+#f			return HANDLED;
+#>    1B 2B 3B 4B 5B  >>>      UND CUT COP PAS DEL
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTALT);
+#f				emit_press(KEY_{X>});
+#f			} else if (ev.value == RELEASE) {
+#f				emit_release(KEY_{X>});
+#f				emit_release(KEY_LEFTALT);
+#f				emit_release(KEY_LEFTMETA);
+#f			}
+#f			return HANDLED;
+#>    1N 2N 3N 4N 5N  >>>      1   2   3   4   5
+#> 0T 1T 2T 3T 4T 5T  >>>  Y   Q   W   F   P   G
+#> 0H 1H 2H 3H 4H 5H  >>>  X   A   R   S   T   D
+
+
+		case L_LT:
+			if (ev.value == PRESS) {
+				swap_mode(mode_ru_extended_sticky,
+				          mode_ru_lang_undecided);
+				emit_release_all();
+			} // else ignore
+			return HANDLED;
+
+#F		case L_{<}:  // Right hand actions exit the extended mode
+#f			emit_key(KEY_{X>}, ev.value);
+#f			if (ev.value == RELEASE) {
+#f				pop_mode(mode_ru_extended_sticky);
+#f			}
+#f			return HANDLED;
+#> 6T 7T 8T 9T AT BT  >>>  #~#  [   ]  #{# #}# #+#
+#> 6H       9H AH BH  >>>  HOM         END  =   /
+#>             AB     >>>                   \
+#> RT                 >>>  #_#
+
+#F		case L_{<}:  // Focus switching
+#f			if (ev.value == PRESS) {
+#f				{X>}();
+#f			} else {
+#f				pop_mode(mode_ru_extended_sticky);
+#f			}
+#f			return HANDLED;
+#>    7H 8H     >>>  WINDOW_FOCUS_DOWN WINDOW_FOCUS_UP
+#> 6B 7B 8B 9B  >>>  WINDOW_MOVE_LEFT WINDOW_MOVE_DOWN WINDOW_MOVE_UP WINDOW_MOVE_RIGHT
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {
+#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTALT);
+#f				emit_press(KEY_{X>});
+#f			} else if (ev.value == RELEASE) {
+#f				emit_release(KEY_{X>});
+#f				emit_release(KEY_LEFTALT);
+#f				emit_release(KEY_LEFTMETA);
+#f				pop_mode(mode_ru_extended_sticky);
+#f			}
+#f			return HANDLED;
+#> 6N 7N 8N 9N AN  >>>  6  7  8  9  0
+
+		case L_RT:
+			if (ev.value == PRESS) {  // MINUS and not underscore
+				pop_mode(mode_ru_extended_sticky);
+				emit_press(KEY_MINUS);
+				SHIFT_KLUDGE();
+				emit_release(KEY_MINUS);
+				emit_release_all();
+			} // else ignore
+			return HANDLED;
+
+#F		case L_{<}:
+#f			if (ev.value == PRESS) {  // Enter shifted char and leave the mode
+#f				pop_mode(mode_ru_extended_sticky);
+#f				emit_release_all();
+#f				emit_press(KEY_LEFTSHIFT);
+#f				emit_press(KEY_{>});
+#f				SHIFT_KLUDGE();
+#f				emit_release(KEY_{>});
+#f				emit_release(KEY_LEFTSHIFT);
+#f				return HANDLED;
+#f			}
+#> 6T 9T AT BT  >>>  GRAVE LEFTBRACE RIGHTBRACE EQUAL
+
+		default: return PASSTHROUGH;
+	}
+}
+
+enum ModeResult mode_ru_lang_undecided(struct InEvent ev) {
+	if (ev.code == L_LT && ev.value == PRESS)  // REPEAT
+		return HANDLED;
+	if (ev.code == L_LT && ev.value == RELEASE) {
+		int too_late = fabs(ev.time - extended_time) > EXPIRATION_MS;
+		extended_time = 0;
+		pop_mode(mode_ru_lang_undecided);
+		if (!too_late)
+			swap_mode(mode_ru, mode_base_colemak);
+		emit_release_all();
+		return HANDLED;
+	}
+	pop_mode(mode_lang_undecided);
+	swap_mode(mode_ru, mode_base_colemak);
+	// no cz-like layer for mode_ru (yet?)
+	return mode_base_colemak(ev);
 }

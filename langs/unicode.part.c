@@ -3,6 +3,7 @@
 		emit_press(KEY_LEFTCTRL); \
 		emit_press(KEY_LEFTSHIFT); \
 		emit_press(KEY_U); emit_release(KEY_U); \
+		usleep(5000); \
 		emit_release(KEY_LEFTSHIFT); \
 		emit_release(KEY_LEFTCTRL); \
 		emit_press(KEY_LEFTALT); \
@@ -12,6 +13,6 @@
 		emit_press(KEY_ ## k2); emit_release(KEY_ ## k2); \
 		emit_press(KEY_ ## k3); emit_release(KEY_ ## k3); \
 		emit_press(KEY_ ## k4); emit_release(KEY_ ## k4); \
-		emit_press(KEY_KPENTER); emit_release(KEY_KPENTER); \
+		emit_press(KEY_SPACE); emit_release(KEY_SPACE); \
 		usleep(20000); \
 	} while(0)
