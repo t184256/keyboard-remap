@@ -199,14 +199,14 @@ enum ModeResult mode_extended_temporary(struct InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f				return HANDLED;
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
 #f				emit_release(KEY_LEFTALT);
-#f				emit_release(KEY_LEFTMETA);
+#f				emit_release(KEY_LEFTSHIFT);
 #f				return HANDLED;
 #f			}
 #>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0
@@ -263,13 +263,13 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
 #f				emit_release(KEY_LEFTALT);
-#f				emit_release(KEY_LEFTMETA);
+#f				emit_release(KEY_LEFTSHIFT);
 #f			}
 #f			return HANDLED;
 #>    1N 2N 3N 4N 5N  >>>      1   2   3   4   5
@@ -298,13 +298,13 @@ enum ModeResult mode_extended_sticky(struct InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
 #f				emit_release(KEY_LEFTALT);
-#f				emit_release(KEY_LEFTMETA);
+#f				emit_release(KEY_LEFTSHIFT);
 #f				pop_mode(mode_extended_sticky);
 #f			}
 #f			return HANDLED;
@@ -731,14 +731,14 @@ enum ModeResult mode_ru_extended_temporary(struct InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f				return HANDLED;
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
 #f				emit_release(KEY_LEFTALT);
-#f				emit_release(KEY_LEFTMETA);
+#f				emit_release(KEY_LEFTSHIFT);
 #f				return HANDLED;
 #f			}
 #>    1N 2N 3N 4N 5N   6N 7N 8N 9N AN     >>>       1   2   3   4   5     6   7   8   9   0
@@ -795,13 +795,13 @@ enum ModeResult mode_ru_extended_sticky(struct InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
 #f				emit_release(KEY_LEFTALT);
-#f				emit_release(KEY_LEFTMETA);
+#f				emit_release(KEY_LEFTSHIFT);
 #f			}
 #f			return HANDLED;
 #>    1N 2N 3N 4N 5N  >>>      1   2   3   4   5
@@ -830,13 +830,13 @@ enum ModeResult mode_ru_extended_sticky(struct InEvent ev) {
 
 #F		case L_{<}:
 #f			if (ev.value == PRESS) {
-#f				emit_press(KEY_LEFTMETA);
+#f				emit_press(KEY_LEFTSHIFT);
 #f				emit_press(KEY_LEFTALT);
 #f				emit_press(KEY_{X>});
 #f			} else if (ev.value == RELEASE) {
 #f				emit_release(KEY_{X>});
 #f				emit_release(KEY_LEFTALT);
-#f				emit_release(KEY_LEFTMETA);
+#f				emit_release(KEY_LEFTSHIFT);
 #f				pop_mode(mode_ru_extended_sticky);
 #f			}
 #f			return HANDLED;
