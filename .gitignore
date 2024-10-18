@@ -1,5 +1,5 @@
 .ccls*
-arduino/emitter_hidproject.part.c
+arduino/emitter_keyboard.part.c
 arduino/kinesis_ps2codes_to_locations.map.h
 keyboard-remap-jap
 keyboard-remap-onemix

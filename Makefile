@@ -6,7 +6,7 @@ COMMON_DEPS=core/modes.part.c modes/modes.part.c
 COMMON_DEPS+=langs/unicode.part.c langs/cz.h langs/ru.h
 LINUX_ONLY_DEPS=linux/source_libevdev.part.c linux/emitter_libevdev.part.c
 LINUX_DEPS=$(LINUX_ONLY_DEPS) $(COMMON_DEPS)
-ARDUINO_DEPS=arduino/emitter_hidproject.part.c
+ARDUINO_DEPS=arduino/emitter_keyboard.part.c
 ARDUINO_DEPS+=arduino/kinesis_ps2codes_to_locations.map.h
 
 all: \

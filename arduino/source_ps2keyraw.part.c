@@ -9,8 +9,8 @@
 #define RELEASE_FLAG 0xF0
 
 // Wiring
-#define PIN_DATA 4  // To DATA	pin of PS/2 header
-#define PIN_CLOCK 3 // To CLOCK pin of PS/2 header
+#define PIN_DATA 3  // To DATA	pin of PS/2 header
+#define PIN_CLOCK 2 // To CLOCK pin of PS/2 header
 
 
 PS2KeyRaw ps2;

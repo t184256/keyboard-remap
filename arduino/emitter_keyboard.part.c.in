@@ -1,44 +1,56 @@
-// only works when included in .ino
-// this is the reason why I didn't go for separate compilation
-#include <HID-Project.h>
+#include <Keyboard.h>
 
 #define usleep delayMicroseconds
 
 #F#define KEY_{N<} KEY_{N>}
-#> LEFTBRACE RIGHTBRACE  >>>  LEFT_BRACE RIGHT_BRACE
+#> LEFT RIGHT UP DOWN  >>>  LEFT_ARROW RIGHT_ARROW UP_ARROW DOWN_ARROW
+#> ENTER  >>>  RETURN
 #> LEFTSHIFT RIGHTSHIFT  >>>  LEFT_SHIFT RIGHT_SHIFT
 #> LEFTCTRL RIGHTCTRL  >>>  LEFT_CTRL RIGHT_CTRL
 #> LEFTALT RIGHTALT  >>>  LEFT_ALT RIGHT_ALT
 #> LEFTMETA RIGHTMETA  >>>  LEFT_GUI RIGHT_GUI
 #> NUMLOCK CAPSLOCK SCROLLLOCK >>>  NUM_LOCK CAPS_LOCK SCROLL_LOCK
-#> APOSTROPHE GRAVE DOT  >>>  QUOTE TILDE PERIOD
 #> PAGEDOWN PAGEUP  >>>  PAGE_DOWN PAGE_UP
-#> SYSRQ  >>>  PRINTSCREEN
+#> SYSRQ  >>>  PRINT_SCREEN
 #> VOLUMEDOWN VOLUMEUP VOLUMEMUTE >>>  VOLUME_DOWN VOLUME_UP VOLUME_MUTE
 #> COMPOSE  >>>  APPLICATION
 
+#F#define KEY_{N<} '{N>}'
+#> 0 1 2 3 4 5 6 7 8 9  >>>  0 1 2 3 4 5 6 7 8 9
+#> GRAVE MINUS PLUS EQUAL SLASH BACKSLASH  >>>  ` - + = / \\
+#> APOSTROPHE SEMICOLON COMMA DOT  >>>  \' ; , .
+#> LEFTBRACE RIGHTBRACE  >>>  [ ]
+#> A B C D E F G H I J K L M  >>>  a b c d e f g h i j k l m
+#> N O P Q R S T U V W X Y Z  >>>  n o p q r s t u v w x y z
+
+#define KEY_SPACE ' '
+
+// not supported
+#F#define KEY_{N<} '{N>}'
+#> VOLUMEDOWN VOLUMEUP MUTE POWER  >>>  . . . .
+#> SCROLLLOCK PAUSE PRINT_SCREEN MENU  >>>  . . . .
+
 
 void emitter_setup(void) {
-	BootKeyboard.begin();
+	Keyboard.begin();
 }
 
 void emit_press(uint16_t code) {
-	BootKeyboard.press((enum KeyboardKeycode) code);
+	Keyboard.press(code);
 }
 
 void emit_release(uint16_t code) {
-	BootKeyboard.release((enum KeyboardKeycode) code);
+	Keyboard.release(code);
 }
 
 void emit_release_all(void) {
-	BootKeyboard.releaseAll();
+	Keyboard.releaseAll();
 }
 
-void emit_key(uint16_t code_, bool value) {
-	enum KeyboardKeycode code = (enum KeyboardKeycode) code_;
+void emit_key(uint16_t code, bool value) {
 	if (value) {
-		BootKeyboard.press(code);
+		Keyboard.press(code);
 	} else {
-		BootKeyboard.release(code);
+		Keyboard.release(code);
 	}
 }

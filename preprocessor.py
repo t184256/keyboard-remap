@@ -23,7 +23,6 @@ SHORT = {
     'RET': 'ENTER',
     'MUT': 'MUTE', 'VUP': 'VOLUMEUP', 'VDN': 'VOLUMEDOWN',
     'MIC_MUTE': 'F20',  # I have no idea why, but it works in Linux
-    'UND': 'UNDO', 'CUT': 'CUT', 'COP': 'COPY', 'PAS': 'PASTE',
     'MUH': 'MUHENKAN', 'HEN': 'HENKAN', 'KAT': 'KATAKANAHIRAGANA',
     '102': '102ND', 'FX': 'F10', 'FY': 'F11', 'FZ': 'F12',
 }

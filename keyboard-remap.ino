@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2019 Alexander Sosedkin <monk@unboiled.info>.
+/* Copyright (c) 2017-2024 Alexander Sosedkin <monk@unboiled.info>.
  * Firmware for my custom PS/2 Kinesis with an Arduino Leonardo inside.
  * Interfaces with PS/2 controller, acts as USB keyboard.
  * Implements a Colemak-inspired layout and does an obscene amount of other things.vdmмьvu
@@ -10,7 +10,7 @@
 #include "core/modes.part.c"
 
 #include "arduino/source_ps2keyraw.part.c"
-#include "arduino/emitter_hidproject.part.c"
+#include "arduino/emitter_keyboard.part.c"
 
 #include "arduino/kinesis_ps2codes_to_locations.map.h"
 
@@ -22,6 +22,8 @@ void setup(void) {
   source_setup();
   emitter_setup();
   modes_setup(MODE_INITIAL);
+  Serial.begin(9600);
+  while(!Serial) {}
   Serial.println("Keyboard online.");
 }
 
