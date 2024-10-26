@@ -11,6 +11,7 @@ ARDUINO_DEPS+=arduino/kinesis_ps2codes_to_locations.map.h
 
 all: \
 	$(LINUX_DEPS) $(ARDUINO_DEPS) \
+	langs/mappings_generated.json \
 	keyboard-remap-cz \
 	keyboard-remap-jap \
 	keyboard-remap-tablet \
@@ -28,3 +29,7 @@ langs/%.h: langs/%.chars langs/genunicode.py
 keyboard-remap-%: $(LINUX_DEPS)
 keyboard-remap-%: linux/keyboard-remap-%.c linux/%_keys_to_locations.map.h
 	${CC} $< -o $@ ${CFLAGS} ${LDFLAGS}
+
+langs/mappings_generated.json: langs/genandroid.py langs/mappings_base.json
+langs/mappings_generated.json: langs/cz.chars langs/ru.chars
+	(cat langs/cz.chars langs/ru.chars) | ./langs/genandroid.py > $@

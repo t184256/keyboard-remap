@@ -10,6 +10,7 @@ linux/onemix_keys_to_locations.map.h
 linux/tablet_keys_to_locations.map.h
 langs/cz.h
 langs/ru.h
+langs/mappings_generated.json
 modes/modes.part.c
 old/
 result

@@ -15,10 +15,14 @@
             prapagatedBuildInputs = with pkgs; [ libevdev ];
             src = ./.;
             patchPhase = ''
-              patchShebangs ./preprocessor.py langs/genunicode.py
+              patchShebangs \
+                langs/genunicode.py \
+                langs/genandroid.py \
+                ./preprocessor.py
             '';
             installPhase = ''
-              mkdir -p $out/bin
+              mkdir -p $out/bin $out/share
+              cp ./langs/mappings_generated.json $out/share/
               cp ./keyboard-remap-onemix $out/bin/
               cp ./keyboard-remap-tablet $out/bin/
               cp ./keyboard-remap-jap $out/bin/

@@ -1,0 +1,45 @@
+{
+  "app_version": 65,
+  "keymap_db_version": 13,
+  "default_sequence_trigger_timeout": 1000,
+  "fingerprint_map_list": [
+    {
+      "action_list": [],
+      "constraints": [],
+      "constraint_mode": 1,
+      "extras": [],
+      "flags": 0,
+      "id": 0,
+      "enabled": true
+    },
+    {
+      "action_list": [],
+      "constraints": [],
+      "constraint_mode": 1,
+      "extras": [],
+      "flags": 0,
+      "id": 1,
+      "enabled": true
+    },
+    {
+      "action_list": [],
+      "constraints": [],
+      "constraint_mode": 1,
+      "extras": [],
+      "flags": 0,
+      "id": 2,
+      "enabled": true
+    },
+    {
+      "action_list": [],
+      "constraints": [],
+      "constraint_mode": 1,
+      "extras": [],
+      "flags": 0,
+      "id": 3,
+      "enabled": true
+    }
+  ],
+  "keymap_list": [
+  ]
+}
