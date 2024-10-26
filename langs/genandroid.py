@@ -35,8 +35,8 @@ def genkeys(*keys):
 
 
 def genblock(i, char):
-    seq = ['CTR', 'ALT', *[x for x in f'{ord(char):04x}'.upper()], 'SPC']
-    ##seq = [*[x for x in f'{ord(char):04x}'.upper()], 'SPC']
+    #seq = ['CTR', 'ALT', *[x for x in f'{ord(char):04x}'.upper()], 'SPC']
+    seq = ['ALT', *[x for x in f'{ord(char):04x}'.upper()], 'SPC']
     return {
         "actionList": [
             {
@@ -64,7 +64,7 @@ def genblock(i, char):
                 "data": "67",  # Backspace
                 "extras": [
                     {
-                        "data": "25",
+                        "data": "30",
                         "id": "extra_delay_before_next_action"
                     }
                 ],
@@ -100,7 +100,7 @@ def genblock(i, char):
         "trigger": {
             "extras": [
                 {
-                    "data": "32",
+                    "data": "16",
                     "id": "extra_sequence_trigger_timeout"
                 }
             ],
