@@ -26,10 +26,10 @@ all: \
 langs/%.h: langs/%.chars langs/genunicode.py
 	./langs/genunicode.py < $^ > $@
 
-keyboard-remap-%: $(LINUX_DEPS)
-keyboard-remap-%: linux/keyboard-remap-%.c linux/%_keys_to_locations.map.h
-	${CC} $< -o $@ ${CFLAGS} ${LDFLAGS}
+keyboard-remap-%: $(LINUX_DEPS) linux/keyboard-remap-%.c \
+                  linux/%_keys_to_locations.map.h
+	${CC} linux/keyboard-remap-$*.c -o $@ ${CFLAGS} ${LDFLAGS}
 
-langs/mappings_generated.json: langs/genandroid.py langs/mappings_base.json
-langs/mappings_generated.json: langs/cz.chars langs/ru.chars
+langs/mappings_generated.json: langs/genandroid.py langs/mappings_base.json \
+                               langs/cz.chars langs/ru.chars
 	(cat langs/cz.chars langs/ru.chars) | ./langs/genandroid.py > $@
